@@ -47,12 +47,19 @@ class SubscriptionTier extends Model
 
     public function getYearlySavingsAttribute(): ?string
     {
-        if (!$this->price_yearly) {
+        // Return null if no yearly price or monthly price is zero/null
+        if (!$this->price_yearly || !$this->price_monthly || $this->price_monthly <= 0) {
             return null;
         }
         
         $monthlyTotal = $this->price_monthly * 12;
         $savings = $monthlyTotal - $this->price_yearly;
+        
+        // Only show savings if there are actual savings and monthly total is positive
+        if ($savings <= 0 || $monthlyTotal <= 0) {
+            return null;
+        }
+        
         $percentage = round(($savings / $monthlyTotal) * 100);
         
         return "Save {$percentage}% ($" . number_format($savings, 2) . ")";
