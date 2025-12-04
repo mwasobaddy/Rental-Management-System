@@ -62,16 +62,19 @@ class GoogleController extends Controller
                     // Assign default role to new users
                     $user->assignRole('landlord'); // Default role for new Google sign-ups
                     
-                    // Start with a trial subscription
-                    $trialTier = \App\Models\SubscriptionTier::findBySlug('starter');
-                    if ($trialTier) {
-                        \App\Models\UserSubscription::createTrial($user->id, $trialTier->id, 14);
-                    }
+                    // New users will be redirected to subscription selection
+                    // No automatic trial assignment
                 }
             }
             
             // Log the user in
             Auth::login($user, true);
+            
+            // Check if user needs subscription
+            if ($user->requiresSubscription()) {
+                return redirect()->route('subscription.index')
+                    ->with('message', 'Welcome! Please select a subscription plan to get started.');
+            }
             
             return redirect()->intended('/dashboard');
             

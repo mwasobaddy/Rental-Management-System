@@ -63,10 +63,14 @@ class User extends Authenticatable
     public function activeSubscription(): HasOne
     {
         return $this->hasOne(UserSubscription::class)
-            ->where('status', 'active')
-            ->orWhere(function ($query) {
-                $query->where('status', 'trial')
-                      ->where('trial_ends_at', '>', now());
+            ->where(function ($query) {
+                $query->where(function ($subQuery) {
+                    $subQuery->where('status', 'active')
+                             ->where('current_period_ends_at', '>', now());
+                })->orWhere(function ($subQuery) {
+                    $subQuery->where('status', 'trial')
+                             ->where('trial_ends_at', '>', now());
+                });
             })
             ->latest();
     }
@@ -78,7 +82,20 @@ class User extends Authenticatable
 
     public function hasActiveSubscription(): bool
     {
-        $subscription = $this->activeSubscription;
+        // Get fresh subscription data to avoid caching issues
+        $subscription = $this->subscriptions()
+            ->where(function ($query) {
+                $query->where(function ($subQuery) {
+                    $subQuery->where('status', 'active')
+                             ->where('current_period_ends_at', '>', now());
+                })->orWhere(function ($subQuery) {
+                    $subQuery->where('status', 'trial')
+                             ->where('trial_ends_at', '>', now());
+                });
+            })
+            ->latest()
+            ->first();
+            
         return $subscription && $subscription->hasAccess();
     }
 
