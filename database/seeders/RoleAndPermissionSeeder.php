@@ -78,18 +78,18 @@ class RoleAndPermissionSeeder extends Seeder
         ];
 
         foreach ($permissions as $permission) {
-            Permission::create(['name' => $permission]);
+            Permission::firstOrCreate(['name' => $permission]);
         }
 
         // Create roles and assign permissions
         
         // Super Admin - Full access to everything
-        $superAdminRole = Role::create(['name' => 'super-admin']);
-        $superAdminRole->givePermissionTo(Permission::all());
+        $superAdminRole = Role::firstOrCreate(['name' => 'super-admin']);
+        $superAdminRole->syncPermissions(Permission::all());
 
         // Landlord - Property owner with full control over their properties
-        $landlordRole = Role::create(['name' => 'landlord']);
-        $landlordRole->givePermissionTo([
+        $landlordRole = Role::firstOrCreate(['name' => 'landlord']);
+        $landlordRole->syncPermissions([
             // Property Management
             'view properties',
             'create properties', 
@@ -142,8 +142,8 @@ class RoleAndPermissionSeeder extends Seeder
         ]);
 
         // Property Manager - Manages properties on behalf of landlords
-        $propertyManagerRole = Role::create(['name' => 'property-manager']);
-        $propertyManagerRole->givePermissionTo([
+        $propertyManagerRole = Role::firstOrCreate(['name' => 'property-manager']);
+        $propertyManagerRole->syncPermissions([
             // Property Management (limited)
             'view properties',
             'edit properties',
@@ -186,8 +186,8 @@ class RoleAndPermissionSeeder extends Seeder
         ]);
 
         // Assistant/Employee - Limited access for support staff
-        $assistantRole = Role::create(['name' => 'assistant']);
-        $assistantRole->givePermissionTo([
+        $assistantRole = Role::firstOrCreate(['name' => 'assistant']);
+        $assistantRole->syncPermissions([
             // Property Management (view only)
             'view properties',
             
@@ -208,16 +208,16 @@ class RoleAndPermissionSeeder extends Seeder
         ]);
 
         // Tenant - Very limited access (for future use if tenants get portal access)
-        $tenantRole = Role::create(['name' => 'tenant']);
-        $tenantRole->givePermissionTo([
+        $tenantRole = Role::firstOrCreate(['name' => 'tenant']);
+        $tenantRole->syncPermissions([
             // Can only view their own information and submit maintenance requests
             'view maintenance',
             'create maintenance',
         ]);
 
         // Viewer - Read-only access for investors or stakeholders
-        $viewerRole = Role::create(['name' => 'viewer']);
-        $viewerRole->givePermissionTo([
+        $viewerRole = Role::firstOrCreate(['name' => 'viewer']);
+        $viewerRole->syncPermissions([
             'view properties',
             'view units',
             'view tenants',
