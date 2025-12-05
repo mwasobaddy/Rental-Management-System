@@ -11,6 +11,11 @@ import { Separator } from '@/components/ui/separator';
 import { AlertCircle, Check, Eye, EyeOff, Link, Shield, User, Home } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Progress } from '@/components/ui/progress';
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@/components/ui/avatar"
 import AppLayout from '@/layouts/app-layout';
 import { BreadcrumbItem } from '@/types';
 
@@ -52,21 +57,6 @@ export default function ProfileSetup({ user, property_types }: ProfileSetupProps
         last_name: user.last_name || '',
         password: '',
         password_confirmation: '',
-        
-        // Property fields
-        property_name: '',
-        property_type: '',
-        property_address: '',
-        property_city: '',
-        property_state: '',
-        property_postal_code: '',
-        property_country: 'US',
-        total_units: '1',
-        purchase_price: '',
-        monthly_rent: '',
-        purchase_date: '',
-        description: '',
-        amenities: [] as string[],
     });
 
     // Check password strength when password changes
@@ -98,7 +88,11 @@ export default function ProfileSetup({ user, property_types }: ProfileSetupProps
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        post('/profile/complete');
+        post('/profile/complete', {
+            onSuccess: () => {
+                window.location.href = '/profile/property/setup';
+            }
+        });
     };
 
     const handleLinkGoogle = () => {
@@ -144,10 +138,10 @@ export default function ProfileSetup({ user, property_types }: ProfileSetupProps
                 <div className="bg-white/80 backdrop-blur-sm border-b border-orange-100 py-12">
                     <div className="px-4 sm:px-6 lg:px-8">
                         <h1 className="text-2xl md:text-3xl font-extrabold text-gray-900 mb-2">
-                            Complete Yourg <span className="bg-gradient-to-r from-orange-600 to-orange-700 bg-clip-text text-transparent">Profile Setup</span>
+                            Complete Your <span className="bg-gradient-to-r from-orange-600 to-orange-700 bg-clip-text text-transparent">Profile Setup</span>
                         </h1>
                         <p className="text-xl text-gray-600">
-                            Let's get you set up with your profile and first property to start managing your rental business like a pro.
+                            Let's get your personal information set up first, then we'll help you add your first property.
                         </p>
                     </div>
                 </div>
@@ -155,9 +149,26 @@ export default function ProfileSetup({ user, property_types }: ProfileSetupProps
                 <div className="px-4 sm:px-6 lg:px-8 py-12">
 
                     <form onSubmit={handleSubmit} className="space-y-8">
-                        <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+                        <div className="grid grid-cols-1 xl:grid-cols-5 gap-8">
+                            {/* card with image as profile picture */}
+                            <Card className="bg-white/90 backdrop-blur-sm shadow-xl border border-orange-100 rounded-2xl col-span-5 xl:col-span-2">
+                                <CardHeader className="rounded-t-2xl border-orange-100 pb-6">
+                                    <CardTitle className="flex items-center gap-3 text-xl font-bold">
+                                        {user.first_name
+                                            ? user.first_name.charAt(0).toUpperCase() + user.first_name.slice(1) + (user.last_name ? ' ' + user.last_name.charAt(0).toUpperCase() + user.last_name.slice(1) : '')
+                                            : user.name.charAt(0).toUpperCase() + user.name.slice(1)}!
+                                    </CardTitle>
+                                    <CardDescription className="text-gray-600 mt-2">
+                                        <Avatar className="size-60 xl:size-80 mx-auto mt-4 mb-2">
+                                            <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
+                                            <AvatarFallback>CN</AvatarFallback>
+                                        </Avatar>
+                                    </CardDescription>
+                                </CardHeader>
+                            </Card>
+
                             {/* User Profile Section */}
-                            <Card className="bg-white/90 backdrop-blur-sm shadow-xl border border-orange-100 rounded-2xl">
+                            <Card className="bg-white/90 backdrop-blur-sm shadow-xl border border-orange-100 rounded-2xl col-span-5 xl:col-span-3">
                                 <CardHeader className="bg-gradient-to-r from-orange-50 to-amber-50 rounded-t-2xl border-b border-orange-100 pb-6">
                                     <CardTitle className="flex items-center gap-3 text-xl">
                                         <div className="w-8 h-8 bg-gradient-to-r from-orange-600 to-orange-700 rounded-lg flex items-center justify-center">
@@ -354,192 +365,7 @@ export default function ProfileSetup({ user, property_types }: ProfileSetupProps
                                 </CardContent>
                             </Card>
 
-                            {/* Property Section */}
-                            <Card className="bg-white/90 backdrop-blur-sm shadow-xl border border-orange-100 rounded-2xl">
-                                <CardHeader className="bg-gradient-to-r from-orange-50 to-amber-50 rounded-t-2xl border-b border-orange-100 pb-6">
-                                    <CardTitle className="flex items-center gap-3 text-xl">
-                                        <div className="w-8 h-8 bg-gradient-to-r from-orange-600 to-orange-700 rounded-lg flex items-center justify-center">
-                                            <Home className="h-5 w-5 text-white" />
-                                        </div>
-                                        Add Your First Property
-                                    </CardTitle>
-                                    <CardDescription className="text-gray-600 mt-2">
-                                        🏠 Tell us about your first rental property to get started with property management
-                                    </CardDescription>
-                                </CardHeader>
-                                <CardContent className="space-y-6">
-                                    {/* Basic property info */}
-                                    <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
-                                        <div>
-                                            <Label htmlFor="property_name">Property Name *</Label>
-                                            <Input
-                                                id="property_name"
-                                                type="text"
-                                                value={data.property_name}
-                                                onChange={(e) => setData('property_name', e.target.value)}
-                                                placeholder="e.g., Downtown Apartments, Oak Street House"
-                                                required
-                                                className="mt-1"
-                                            />
-                                            {errors.property_name && (
-                                                <p className="text-red-600 text-sm mt-1">{errors.property_name}</p>
-                                            )}
-                                        </div>
 
-                                        <div>
-                                            <Label htmlFor="property_type">Property Type *</Label>
-                                            <Select value={data.property_type} onValueChange={(value) => setData('property_type', value)}>
-                                                <SelectTrigger className="mt-1">
-                                                    <SelectValue placeholder="Select property type" />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    {Object.entries(property_types).map(([value, label]) => (
-                                                        <SelectItem key={value} value={value}>
-                                                            {label}
-                                                        </SelectItem>
-                                                    ))}
-                                                </SelectContent>
-                                            </Select>
-                                            {errors.property_type && (
-                                                <p className="text-red-600 text-sm mt-1">{errors.property_type}</p>
-                                            )}
-                                        </div>
-                                    </div>
-
-                                    {/* Address */}
-                                    <div>
-                                        <Label htmlFor="property_address">Street Address *</Label>
-                                        <Input
-                                            id="property_address"
-                                            type="text"
-                                            value={data.property_address}
-                                            onChange={(e) => setData('property_address', e.target.value)}
-                                            placeholder="123 Main Street"
-                                            required
-                                            className="mt-1"
-                                        />
-                                        {errors.property_address && (
-                                            <p className="text-red-600 text-sm mt-1">{errors.property_address}</p>
-                                        )}
-                                    </div>
-
-                                    <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
-                                        <div>
-                                            <Label htmlFor="property_city">City *</Label>
-                                            <Input
-                                                id="property_city"
-                                                type="text"
-                                                value={data.property_city}
-                                                onChange={(e) => setData('property_city', e.target.value)}
-                                                required
-                                                className="mt-1"
-                                            />
-                                            {errors.property_city && (
-                                                <p className="text-red-600 text-sm mt-1">{errors.property_city}</p>
-                                            )}
-                                        </div>
-
-                                        <div>
-                                            <Label htmlFor="property_state">State/Province *</Label>
-                                            <Input
-                                                id="property_state"
-                                                type="text"
-                                                value={data.property_state}
-                                                onChange={(e) => setData('property_state', e.target.value)}
-                                                required
-                                                className="mt-1"
-                                            />
-                                            {errors.property_state && (
-                                                <p className="text-red-600 text-sm mt-1">{errors.property_state}</p>
-                                            )}
-                                        </div>
-
-                                        <div>
-                                            <Label htmlFor="property_postal_code">ZIP/Postal Code *</Label>
-                                            <Input
-                                                id="property_postal_code"
-                                                type="text"
-                                                value={data.property_postal_code}
-                                                onChange={(e) => setData('property_postal_code', e.target.value)}
-                                                required
-                                                className="mt-1"
-                                            />
-                                            {errors.property_postal_code && (
-                                                <p className="text-red-600 text-sm mt-1">{errors.property_postal_code}</p>
-                                            )}
-                                        </div>
-                                    </div>
-
-                                    {/* Property details */}
-                                    <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
-                                        <div>
-                                            <Label htmlFor="total_units">Number of Units *</Label>
-                                            <Input
-                                                id="total_units"
-                                                type="number"
-                                                min="1"
-                                                value={data.total_units}
-                                                onChange={(e) => setData('total_units', e.target.value)}
-                                                required
-                                                className="mt-1"
-                                            />
-                                            {errors.total_units && (
-                                                <p className="text-red-600 text-sm mt-1">{errors.total_units}</p>
-                                            )}
-                                        </div>
-
-                                        <div>
-                                            <Label htmlFor="purchase_price">Purchase Price (Optional)</Label>
-                                            <Input
-                                                id="purchase_price"
-                                                type="number"
-                                                min="0"
-                                                step="0.01"
-                                                value={data.purchase_price}
-                                                onChange={(e) => setData('purchase_price', e.target.value)}
-                                                placeholder="350000"
-                                                className="mt-1"
-                                            />
-                                            {errors.purchase_price && (
-                                                <p className="text-red-600 text-sm mt-1">{errors.purchase_price}</p>
-                                            )}
-                                        </div>
-
-                                        <div>
-                                            <Label htmlFor="monthly_rent">Monthly Rent (Optional)</Label>
-                                            <Input
-                                                id="monthly_rent"
-                                                type="number"
-                                                min="0"
-                                                step="0.01"
-                                                value={data.monthly_rent}
-                                                onChange={(e) => setData('monthly_rent', e.target.value)}
-                                                placeholder="2500"
-                                                className="mt-1"
-                                            />
-                                            {errors.monthly_rent && (
-                                                <p className="text-red-600 text-sm mt-1">{errors.monthly_rent}</p>
-                                            )}
-                                        </div>
-                                    </div>
-
-                                    {/* Description */}
-                                    <div>
-                                        <Label htmlFor="description">Property Description (Optional)</Label>
-                                        <Textarea
-                                            id="description"
-                                            value={data.description}
-                                            onChange={(e) => setData('description', e.target.value)}
-                                            placeholder="Describe your property, including key features and amenities..."
-                                            rows={3}
-                                            className="mt-1"
-                                        />
-                                        {errors.description && (
-                                            <p className="text-red-600 text-sm mt-1">{errors.description}</p>
-                                        )}
-                                    </div>
-                                </CardContent>
-                            </Card>
                         </div>
 
                         {/* Submit */}
@@ -547,10 +373,10 @@ export default function ProfileSetup({ user, property_types }: ProfileSetupProps
                             <div className="bg-white/90 backdrop-blur-sm shadow-xl border border-orange-100 rounded-2xl p-8">
                                 <div className="mb-6">
                                     <h3 className="text-xl font-bold text-gray-900 mb-2">
-                                        🎯 Ready to Launch Your Rental Business?
+                                        👤 Complete Your Profile Setup
                                     </h3>
                                     <p className="text-gray-600">
-                                        Complete your setup and start managing properties like a pro!
+                                        Finish setting up your personal information, then we'll help you add your first property!
                                     </p>
                                 </div>
                                 
@@ -566,14 +392,14 @@ export default function ProfileSetup({ user, property_types }: ProfileSetupProps
                                                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                                                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                             </svg>
-                                            <span>🔄 Setting up...</span>
+                                            <span>Saving Profile...</span>
                                         </div>
                                     ) : (
                                         <div className="flex items-center space-x-2">
                                             <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                                                 <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                                             </svg>
-                                            <span>🚀 Complete Setup</span>
+                                            <span>Continue to Property Setup →</span>
                                         </div>
                                     )}
                                 </Button>

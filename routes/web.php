@@ -22,6 +22,10 @@ Route::middleware(['auth', 'verified'])->prefix('profile')->name('profile.')->gr
     Route::post('/complete', [App\Http\Controllers\ProfileController::class, 'complete'])->name('complete');
     Route::post('/password-strength', [App\Http\Controllers\ProfileController::class, 'checkPasswordStrength'])->name('password.strength');
     Route::get('/link-google', [App\Http\Controllers\ProfileController::class, 'linkGoogle'])->name('link.google');
+    
+    // Property setup routes
+    Route::get('/property/setup', [App\Http\Controllers\ProfileController::class, 'propertySetup'])->name('property.setup');
+    Route::post('/property/complete', [App\Http\Controllers\ProfileController::class, 'completePropertySetup'])->name('property.complete');
 });
 
 // Subscription routes (require auth but not subscription)

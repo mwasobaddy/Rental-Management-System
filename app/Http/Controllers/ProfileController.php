@@ -58,22 +58,6 @@ class ProfileController extends Controller
             'password' => $user->needsPasswordSetup() 
                 ? ['required', 'confirmed', Rules\Password::defaults()] 
                 : ['nullable', 'confirmed', Rules\Password::defaults()],
-            
-            // Property fields
-            'property_name' => 'required|string|max:255',
-            'property_type' => 'required|string|in:single_family,multi_family,apartment,condo,townhouse,commercial,mixed_use,other',
-            'property_address' => 'required|string|max:500',
-            'property_city' => 'required|string|max:255',
-            'property_state' => 'required|string|max:255',
-            'property_postal_code' => 'required|string|max:20',
-            'property_country' => 'string|max:255',
-            'total_units' => 'required|integer|min:1|max:1000',
-            'purchase_price' => 'nullable|numeric|min:0',
-            'monthly_rent' => 'nullable|numeric|min:0',
-            'purchase_date' => 'nullable|date|before_or_equal:today',
-            'description' => 'nullable|string|max:1000',
-            'amenities' => 'nullable|array',
-            'amenities.*' => 'string|max:255',
         ]);
 
         // Update user profile
@@ -89,6 +73,69 @@ class ProfileController extends Controller
 
         $user->update($userUpdateData);
 
+        return response()->json([
+            'success' => true,
+            'message' => 'Profile completed successfully!'
+        ]);
+    }
+
+    /**
+     * Show property setup page
+     */
+    public function propertySetup()
+    {
+        $user = auth()->user();
+        
+        // Redirect if profile not completed
+        if (!$user->hasCompletedProfile()) {
+            return redirect()->route('profile.setup')
+                ->with('error', 'Please complete your profile setup first.');
+        }
+        
+        $property_types = [
+            'single_family' => 'Single Family Home',
+            'multi_family' => 'Multi-Family Home',
+            'apartment' => 'Apartment Complex',
+            'condo' => 'Condominium',
+            'townhouse' => 'Townhouse',
+            'commercial' => 'Commercial Property',
+            'mixed_use' => 'Mixed Use',
+            'other' => 'Other',
+        ];
+        
+        return inertia('profile/property-setup', [
+            'user' => $user->load('subscription.tier'),
+            'property_types' => $property_types,
+        ]);
+    }
+    
+    /**
+     * Complete property setup
+     */
+    public function completePropertySetup(Request $request)
+    {
+        $user = auth()->user();
+        
+        // Validate based on subscription tier limits
+        $maxUnits = $user->subscription?->tier->max_units;
+        
+        $request->validate([
+            'property_name' => 'required|string|max:255',
+            'property_type' => 'required|string|in:single_family,multi_family,apartment,condo,townhouse,commercial,mixed_use,other',
+            'property_address' => 'required|string|max:500',
+            'property_city' => 'required|string|max:255',
+            'property_state' => 'required|string|max:255',
+            'property_postal_code' => 'required|string|max:20',
+            'property_country' => 'string|max:255',
+            'total_units' => ['required', 'integer', 'min:1', $maxUnits ? "max:$maxUnits" : 'max:1000'],
+            'purchase_price' => 'nullable|numeric|min:0',
+            'monthly_rent' => 'nullable|numeric|min:0',
+            'purchase_date' => 'nullable|date|before_or_equal:today',
+            'description' => 'nullable|string|max:1000',
+            'amenities' => 'nullable|array',
+            'amenities.*' => 'string|max:255',
+        ]);
+        
         // Create the property
         $property = Property::create([
             'user_id' => $user->id,
@@ -107,8 +154,12 @@ class ProfileController extends Controller
             'amenities' => $request->amenities ?? [],
             'status' => 'active',
         ]);
-
-        return redirect()->route('dashboard')->with('success', 'Profile setup completed successfully! Welcome to your rental management dashboard.');
+        
+        // Mark property setup as complete
+        $user->update(['property_setup_completed_at' => now()]);
+        
+        return redirect()->route('dashboard')
+            ->with('success', 'Property added successfully! Welcome to your rental management dashboard.');
     }
 
     /**

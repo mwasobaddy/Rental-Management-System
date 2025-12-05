@@ -31,6 +31,7 @@ class User extends Authenticatable
         'last_name',
         'phone',
         'profile_completed_at',
+        'property_setup_completed_at',
         'has_google_linked',
     ];
 
@@ -175,7 +176,15 @@ class User extends Authenticatable
     {
         return !is_null($this->profile_completed_at) && 
                !empty($this->first_name) && 
-               !empty($this->last_name) && 
+               !empty($this->last_name);
+    }
+
+    /**
+     * Check if the user has completed property setup
+     */
+    public function hasCompletedPropertySetup(): bool
+    {
+        return !is_null($this->property_setup_completed_at) && 
                $this->properties()->count() > 0;
     }
 
