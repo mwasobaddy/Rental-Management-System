@@ -91,10 +91,21 @@ class SubscriptionController extends Controller
 
     public function subscribe(Request $request): \Illuminate\Http\RedirectResponse
     {
+        // Debug: Log the incoming request data
+        \Log::info('Subscription request received', [
+            'user_id' => auth()->id(),
+            'request_data' => $request->all()
+        ]);
+
         $request->validate([
             'tier_id' => 'required|exists:subscription_tiers,id',
             'billing_cycle' => 'required|in:monthly,yearly',
             'payment_method' => 'required|string',
+            'cardholder_name' => 'required|string|max:255',
+            'card_number' => 'required|string',
+            'expiry_month' => 'required|string|size:2',
+            'expiry_year' => 'required|string|size:2',
+            'cvv' => 'required|string|min:3|max:4',
         ]);
 
         $user = auth()->user();
@@ -126,8 +137,29 @@ class SubscriptionController extends Controller
                 'payment_id' => 'demo_' . uniqid(), // In production, use actual payment ID
             ]);
 
+            // Debug: Log successful subscription creation
+            \Log::info('Subscription created successfully', [
+                'user_id' => $user->id,
+                'subscription_id' => $subscription->id,
+                'tier_name' => $tier->name,
+                'billing_cycle' => $request->billing_cycle,
+                'status' => $subscription->status
+            ]);
+
+            // Check if user needs profile setup
+            if (!$user->hasCompletedProfile()) {
+                return redirect()->route('profile.setup')->with('success', 'Subscription activated! Please complete your profile setup to get started.');
+            }
+            
             return redirect()->route('dashboard')->with('success', 'Subscription activated successfully!');
         }
+
+        // Debug: Log payment failure
+        \Log::warning('Payment failed for subscription', [
+            'user_id' => $user->id,
+            'tier_id' => $tier->id,
+            'payment_method' => $request->payment_method
+        ]);
 
         return back()->withErrors(['payment' => 'Payment failed. Please try again.']);
     }
