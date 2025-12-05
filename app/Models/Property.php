@@ -18,7 +18,7 @@ class Property extends Model
         'address',
         'city',
         'state',
-        'postal_code',
+        'zip_code',
         'country',
         'latitude',
         'longitude',
@@ -48,7 +48,7 @@ class Property extends Model
 
     public function getFormattedAddressAttribute(): string
     {
-        return "{$this->address}, {$this->city}, {$this->state} {$this->postal_code}";
+        return "{$this->address}, {$this->city}, {$this->state} {$this->zip_code}";
     }
 
     public function getFormattedPurchasePriceAttribute(): string

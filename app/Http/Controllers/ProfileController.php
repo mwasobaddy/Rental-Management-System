@@ -55,7 +55,9 @@ class ProfileController extends Controller
             // User profile fields
             'first_name' => 'required|string|max:255',
             'last_name' => 'required|string|max:255',
-            'password' => $user->needsPasswordSetup() ? ['required', 'confirmed', Rules\Password::defaults()] : 'nullable|confirmed|' . Rules\Password::defaults(),
+            'password' => $user->needsPasswordSetup() 
+                ? ['required', 'confirmed', Rules\Password::defaults()] 
+                : ['nullable', 'confirmed', Rules\Password::defaults()],
             
             // Property fields
             'property_name' => 'required|string|max:255',
@@ -96,7 +98,7 @@ class ProfileController extends Controller
             'address' => $request->property_address,
             'city' => $request->property_city,
             'state' => $request->property_state,
-            'postal_code' => $request->property_postal_code,
+            'zip_code' => $request->property_postal_code,
             'country' => $request->property_country ?? 'US',
             'total_units' => $request->total_units,
             'purchase_price' => $request->purchase_price,

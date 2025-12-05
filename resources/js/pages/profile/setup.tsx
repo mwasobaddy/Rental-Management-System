@@ -142,469 +142,466 @@ export default function ProfileSetup({ user, property_types }: ProfileSetupProps
             <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-orange-100">
                 {/* Header Section */}
                 <div className="bg-white/80 backdrop-blur-sm border-b border-orange-100 py-12">
-                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-                        <div className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-orange-600 to-orange-700 rounded-full text-white text-sm font-semibold mb-4">
-                            🎉 Welcome to RentFlow!
-                        </div>
-                        <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-                            Complete Your <span className="bg-gradient-to-r from-orange-600 to-orange-700 bg-clip-text text-transparent">Profile Setup</span>
+                    <div className="px-4 sm:px-6 lg:px-8">
+                        <h1 className="text-2xl md:text-3xl font-extrabold text-gray-900 mb-2">
+                            Complete Yourg <span className="bg-gradient-to-r from-orange-600 to-orange-700 bg-clip-text text-transparent">Profile Setup</span>
                         </h1>
-                        <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+                        <p className="text-xl text-gray-600">
                             Let's get you set up with your profile and first property to start managing your rental business like a pro.
                         </p>
                     </div>
                 </div>
                 
-                <div className="max-w-7xl lg:mx-auto px-4 sm:px-6 lg:px-8 py-12">
+                <div className="px-4 sm:px-6 lg:px-8 py-12">
 
-                <form onSubmit={handleSubmit} className="space-y-8">
-                    <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
-                        {/* User Profile Section */}
-                        <Card className="bg-white/90 backdrop-blur-sm shadow-xl border border-orange-100 rounded-2xl">
-                            <CardHeader className="bg-gradient-to-r from-orange-50 to-amber-50 rounded-t-2xl border-b border-orange-100 pb-6">
-                                <CardTitle className="flex items-center gap-3 text-xl">
-                                    <div className="w-8 h-8 bg-gradient-to-r from-orange-600 to-orange-700 rounded-lg flex items-center justify-center">
-                                        <User className="h-5 w-5 text-white" />
+                    <form onSubmit={handleSubmit} className="space-y-8">
+                        <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+                            {/* User Profile Section */}
+                            <Card className="bg-white/90 backdrop-blur-sm shadow-xl border border-orange-100 rounded-2xl">
+                                <CardHeader className="bg-gradient-to-r from-orange-50 to-amber-50 rounded-t-2xl border-b border-orange-100 pb-6">
+                                    <CardTitle className="flex items-center gap-3 text-xl">
+                                        <div className="w-8 h-8 bg-gradient-to-r from-orange-600 to-orange-700 rounded-lg flex items-center justify-center">
+                                            <User className="h-5 w-5 text-white" />
+                                        </div>
+                                        Personal Information
+                                    </CardTitle>
+                                    <CardDescription className="text-gray-600 mt-2">
+                                        📝 Complete your personal profile information to get started
+                                    </CardDescription>
+                                </CardHeader>
+                                <CardContent className="space-y-6">
+                                    {/* Email (read-only) */}
+                                    <div>
+                                        <Label htmlFor="email">Email Address</Label>
+                                        <Input
+                                            id="email"
+                                            type="email"
+                                            value={user.email}
+                                            disabled
+                                            className="bg-gray-50"
+                                        />
+                                        <p className="text-sm text-gray-500 mt-1">
+                                            {user.is_google_user && (
+                                                <span className="flex items-center gap-1">
+                                                    <Check className="h-4 w-4 text-green-600" />
+                                                    Verified with Google
+                                                </span>
+                                            )}
+                                        </p>
                                     </div>
-                                    Personal Information
-                                </CardTitle>
-                                <CardDescription className="text-gray-600 mt-2">
-                                    📝 Complete your personal profile information to get started
-                                </CardDescription>
-                            </CardHeader>
-                            <CardContent className="space-y-6">
-                                {/* Email (read-only) */}
-                                <div>
-                                    <Label htmlFor="email">Email Address</Label>
-                                    <Input
-                                        id="email"
-                                        type="email"
-                                        value={user.email}
-                                        disabled
-                                        className="bg-gray-50"
-                                    />
-                                    <p className="text-sm text-gray-500 mt-1">
-                                        {user.is_google_user && (
-                                            <span className="flex items-center gap-1">
-                                                <Check className="h-4 w-4 text-green-600" />
-                                                Verified with Google
-                                            </span>
+
+                                    {/* Name fields */}
+                                    <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+                                        <div>
+                                            <Label htmlFor="first_name">First Name *</Label>
+                                            <Input
+                                                id="first_name"
+                                                type="text"
+                                                value={data.first_name}
+                                                onChange={(e) => setData('first_name', e.target.value)}
+                                                required
+                                                className="mt-1"
+                                            />
+                                            {errors.first_name && (
+                                                <p className="text-red-600 text-sm mt-1">{errors.first_name}</p>
+                                            )}
+                                        </div>
+
+                                        <div>
+                                            <Label htmlFor="last_name">Last Name *</Label>
+                                            <Input
+                                                id="last_name"
+                                                type="text"
+                                                value={data.last_name}
+                                                onChange={(e) => setData('last_name', e.target.value)}
+                                                required
+                                                className="mt-1"
+                                            />
+                                            {errors.last_name && (
+                                                <p className="text-red-600 text-sm mt-1">{errors.last_name}</p>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    {/* Password section for Google users or users without password */}
+                                    {(!user.has_password || user.is_google_user) && (
+                                        <>
+                                            <Separator />
+                                            <div>
+                                                <h3 className="text-lg font-medium flex items-center gap-2 mb-4">
+                                                    <Shield className="h-5 w-5" />
+                                                    Set Up Password
+                                                </h3>
+                                                
+                                                <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+                                                    <div>
+                                                        <Label htmlFor="password">Password *</Label>
+                                                        <div className="relative mt-1">
+                                                            <Input
+                                                                id="password"
+                                                                type={showPassword ? "text" : "password"}
+                                                                value={data.password}
+                                                                onChange={(e) => setData('password', e.target.value)}
+                                                                required
+                                                            />
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => setShowPassword(!showPassword)}
+                                                                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                                                            >
+                                                                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                                                            </button>
+                                                        </div>
+                                                        
+                                                        {/* Password strength indicator */}
+                                                        {data.password && (
+                                                            <div className="mt-3">
+                                                                <div className="flex items-center space-x-3 mb-2">
+                                                                    <div className="flex-1 bg-gray-200 rounded-full h-3 overflow-hidden">
+                                                                        <div 
+                                                                            className={`h-3 rounded-full transition-all duration-500 ${getStrengthColor(passwordStrength.level)} shadow-sm`}
+                                                                            style={{ width: `${(passwordStrength.score / 4) * 100}%` }}
+                                                                        />
+                                                                    </div>
+                                                                    <div className={`flex items-center space-x-1 text-sm font-semibold px-2 py-1 rounded-full ${
+                                                                        passwordStrength.level === 'weak' ? 'bg-red-100 text-red-700' : 
+                                                                        passwordStrength.level === 'medium' ? 'bg-yellow-100 text-yellow-700' : 
+                                                                        'bg-green-100 text-green-700'
+                                                                    }`}>
+                                                                        {passwordStrength.level === 'weak' && <span>🔴</span>}
+                                                                        {passwordStrength.level === 'medium' && <span>🟡</span>}
+                                                                        {passwordStrength.level === 'strong' && <span>🟢</span>}
+                                                                        <span>{getStrengthText(passwordStrength.level)}</span>
+                                                                    </div>
+                                                                </div>
+                                                                {passwordStrength.feedback.length > 0 && (
+                                                                    <div className="bg-orange-50 border border-orange-200 rounded-lg p-3">
+                                                                        <ul className="text-sm text-orange-800 space-y-1">
+                                                                            {passwordStrength.feedback.map((tip, index) => (
+                                                                                <li key={index} className="flex items-center gap-2">
+                                                                                    <AlertCircle className="h-3 w-3 text-orange-600 flex-shrink-0" />
+                                                                                    {tip}
+                                                                                </li>
+                                                                            ))}
+                                                                        </ul>
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                        )}
+                                                        
+                                                        {errors.password && (
+                                                            <p className="text-red-600 text-sm mt-1">{errors.password}</p>
+                                                        )}
+                                                    </div>
+
+                                                    <div>
+                                                        <Label htmlFor="password_confirmation">Confirm Password *</Label>
+                                                        <div className="relative mt-1">
+                                                            <Input
+                                                                id="password_confirmation"
+                                                                type={showPasswordConfirm ? "text" : "password"}
+                                                                value={data.password_confirmation}
+                                                                onChange={(e) => setData('password_confirmation', e.target.value)}
+                                                                required
+                                                            />
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => setShowPasswordConfirm(!showPasswordConfirm)}
+                                                                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                                                            >
+                                                                {showPasswordConfirm ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                                                            </button>
+                                                        </div>
+                                                        {errors.password_confirmation && (
+                                                            <p className="text-red-600 text-sm mt-1">{errors.password_confirmation}</p>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </>
+                                    )}
+
+                                    {/* Google linking for non-Google users */}
+                                    {!user.is_google_user && !user.has_google_linked && (
+                                        <>
+                                            <Separator className="bg-orange-100" />
+                                            <div className="text-center p-6 border border-orange-200 rounded-xl bg-gradient-to-r from-orange-50 to-amber-50">
+                                                <div className="w-12 h-12 bg-gradient-to-r from-orange-600 to-orange-700 rounded-xl flex items-center justify-center mx-auto mb-3">
+                                                    <svg className="w-6 h-6 text-white" viewBox="0 0 24 24">
+                                                        <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                                                        <path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                                                        <path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                                                        <path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                                                    </svg>
+                                                </div>
+                                                <h4 className="text-lg font-bold text-orange-900 mb-2">
+                                                    🔗 Link Your Google Account
+                                                </h4>
+                                                <p className="text-sm text-orange-700 mb-4 font-medium">
+                                                    Optional: Link your Google account for easier sign-ins and enhanced security.
+                                                </p>
+                                                <Button
+                                                    type="button"
+                                                    onClick={handleLinkGoogle}
+                                                    className="w-full bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 text-white font-semibold shadow-lg transform hover:scale-105 transition-all duration-200"
+                                                >
+                                                    <Link className="h-4 w-4 mr-2" />
+                                                    🚀 Link Google Account
+                                                </Button>
+                                            </div>
+                                        </>
+                                    )}
+                                </CardContent>
+                            </Card>
+
+                            {/* Property Section */}
+                            <Card className="bg-white/90 backdrop-blur-sm shadow-xl border border-orange-100 rounded-2xl">
+                                <CardHeader className="bg-gradient-to-r from-orange-50 to-amber-50 rounded-t-2xl border-b border-orange-100 pb-6">
+                                    <CardTitle className="flex items-center gap-3 text-xl">
+                                        <div className="w-8 h-8 bg-gradient-to-r from-orange-600 to-orange-700 rounded-lg flex items-center justify-center">
+                                            <Home className="h-5 w-5 text-white" />
+                                        </div>
+                                        Add Your First Property
+                                    </CardTitle>
+                                    <CardDescription className="text-gray-600 mt-2">
+                                        🏠 Tell us about your first rental property to get started with property management
+                                    </CardDescription>
+                                </CardHeader>
+                                <CardContent className="space-y-6">
+                                    {/* Basic property info */}
+                                    <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+                                        <div>
+                                            <Label htmlFor="property_name">Property Name *</Label>
+                                            <Input
+                                                id="property_name"
+                                                type="text"
+                                                value={data.property_name}
+                                                onChange={(e) => setData('property_name', e.target.value)}
+                                                placeholder="e.g., Downtown Apartments, Oak Street House"
+                                                required
+                                                className="mt-1"
+                                            />
+                                            {errors.property_name && (
+                                                <p className="text-red-600 text-sm mt-1">{errors.property_name}</p>
+                                            )}
+                                        </div>
+
+                                        <div>
+                                            <Label htmlFor="property_type">Property Type *</Label>
+                                            <Select value={data.property_type} onValueChange={(value) => setData('property_type', value)}>
+                                                <SelectTrigger className="mt-1">
+                                                    <SelectValue placeholder="Select property type" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    {Object.entries(property_types).map(([value, label]) => (
+                                                        <SelectItem key={value} value={value}>
+                                                            {label}
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                            {errors.property_type && (
+                                                <p className="text-red-600 text-sm mt-1">{errors.property_type}</p>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    {/* Address */}
+                                    <div>
+                                        <Label htmlFor="property_address">Street Address *</Label>
+                                        <Input
+                                            id="property_address"
+                                            type="text"
+                                            value={data.property_address}
+                                            onChange={(e) => setData('property_address', e.target.value)}
+                                            placeholder="123 Main Street"
+                                            required
+                                            className="mt-1"
+                                        />
+                                        {errors.property_address && (
+                                            <p className="text-red-600 text-sm mt-1">{errors.property_address}</p>
                                         )}
+                                    </div>
+
+                                    <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
+                                        <div>
+                                            <Label htmlFor="property_city">City *</Label>
+                                            <Input
+                                                id="property_city"
+                                                type="text"
+                                                value={data.property_city}
+                                                onChange={(e) => setData('property_city', e.target.value)}
+                                                required
+                                                className="mt-1"
+                                            />
+                                            {errors.property_city && (
+                                                <p className="text-red-600 text-sm mt-1">{errors.property_city}</p>
+                                            )}
+                                        </div>
+
+                                        <div>
+                                            <Label htmlFor="property_state">State/Province *</Label>
+                                            <Input
+                                                id="property_state"
+                                                type="text"
+                                                value={data.property_state}
+                                                onChange={(e) => setData('property_state', e.target.value)}
+                                                required
+                                                className="mt-1"
+                                            />
+                                            {errors.property_state && (
+                                                <p className="text-red-600 text-sm mt-1">{errors.property_state}</p>
+                                            )}
+                                        </div>
+
+                                        <div>
+                                            <Label htmlFor="property_postal_code">ZIP/Postal Code *</Label>
+                                            <Input
+                                                id="property_postal_code"
+                                                type="text"
+                                                value={data.property_postal_code}
+                                                onChange={(e) => setData('property_postal_code', e.target.value)}
+                                                required
+                                                className="mt-1"
+                                            />
+                                            {errors.property_postal_code && (
+                                                <p className="text-red-600 text-sm mt-1">{errors.property_postal_code}</p>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    {/* Property details */}
+                                    <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
+                                        <div>
+                                            <Label htmlFor="total_units">Number of Units *</Label>
+                                            <Input
+                                                id="total_units"
+                                                type="number"
+                                                min="1"
+                                                value={data.total_units}
+                                                onChange={(e) => setData('total_units', e.target.value)}
+                                                required
+                                                className="mt-1"
+                                            />
+                                            {errors.total_units && (
+                                                <p className="text-red-600 text-sm mt-1">{errors.total_units}</p>
+                                            )}
+                                        </div>
+
+                                        <div>
+                                            <Label htmlFor="purchase_price">Purchase Price (Optional)</Label>
+                                            <Input
+                                                id="purchase_price"
+                                                type="number"
+                                                min="0"
+                                                step="0.01"
+                                                value={data.purchase_price}
+                                                onChange={(e) => setData('purchase_price', e.target.value)}
+                                                placeholder="350000"
+                                                className="mt-1"
+                                            />
+                                            {errors.purchase_price && (
+                                                <p className="text-red-600 text-sm mt-1">{errors.purchase_price}</p>
+                                            )}
+                                        </div>
+
+                                        <div>
+                                            <Label htmlFor="monthly_rent">Monthly Rent (Optional)</Label>
+                                            <Input
+                                                id="monthly_rent"
+                                                type="number"
+                                                min="0"
+                                                step="0.01"
+                                                value={data.monthly_rent}
+                                                onChange={(e) => setData('monthly_rent', e.target.value)}
+                                                placeholder="2500"
+                                                className="mt-1"
+                                            />
+                                            {errors.monthly_rent && (
+                                                <p className="text-red-600 text-sm mt-1">{errors.monthly_rent}</p>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    {/* Description */}
+                                    <div>
+                                        <Label htmlFor="description">Property Description (Optional)</Label>
+                                        <Textarea
+                                            id="description"
+                                            value={data.description}
+                                            onChange={(e) => setData('description', e.target.value)}
+                                            placeholder="Describe your property, including key features and amenities..."
+                                            rows={3}
+                                            className="mt-1"
+                                        />
+                                        {errors.description && (
+                                            <p className="text-red-600 text-sm mt-1">{errors.description}</p>
+                                        )}
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        </div>
+
+                        {/* Submit */}
+                        <div className="text-center">
+                            <div className="bg-white/90 backdrop-blur-sm shadow-xl border border-orange-100 rounded-2xl p-8">
+                                <div className="mb-6">
+                                    <h3 className="text-xl font-bold text-gray-900 mb-2">
+                                        🎯 Ready to Launch Your Rental Business?
+                                    </h3>
+                                    <p className="text-gray-600">
+                                        Complete your setup and start managing properties like a pro!
                                     </p>
                                 </div>
-
-                                {/* Name fields */}
-                                <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
-                                    <div>
-                                        <Label htmlFor="first_name">First Name *</Label>
-                                        <Input
-                                            id="first_name"
-                                            type="text"
-                                            value={data.first_name}
-                                            onChange={(e) => setData('first_name', e.target.value)}
-                                            required
-                                            className="mt-1"
-                                        />
-                                        {errors.first_name && (
-                                            <p className="text-red-600 text-sm mt-1">{errors.first_name}</p>
-                                        )}
-                                    </div>
-
-                                    <div>
-                                        <Label htmlFor="last_name">Last Name *</Label>
-                                        <Input
-                                            id="last_name"
-                                            type="text"
-                                            value={data.last_name}
-                                            onChange={(e) => setData('last_name', e.target.value)}
-                                            required
-                                            className="mt-1"
-                                        />
-                                        {errors.last_name && (
-                                            <p className="text-red-600 text-sm mt-1">{errors.last_name}</p>
-                                        )}
-                                    </div>
-                                </div>
-
-                                {/* Password section for Google users or users without password */}
-                                {(!user.has_password || user.is_google_user) && (
-                                    <>
-                                        <Separator />
-                                        <div>
-                                            <h3 className="text-lg font-medium flex items-center gap-2 mb-4">
-                                                <Shield className="h-5 w-5" />
-                                                Set Up Password
-                                            </h3>
-                                            
-                                            <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
-                                                <div>
-                                                    <Label htmlFor="password">Password *</Label>
-                                                    <div className="relative mt-1">
-                                                        <Input
-                                                            id="password"
-                                                            type={showPassword ? "text" : "password"}
-                                                            value={data.password}
-                                                            onChange={(e) => setData('password', e.target.value)}
-                                                            required
-                                                        />
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => setShowPassword(!showPassword)}
-                                                            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
-                                                        >
-                                                            {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                                                        </button>
-                                                    </div>
-                                                    
-                                                    {/* Password strength indicator */}
-                                                    {data.password && (
-                                                        <div className="mt-3">
-                                                            <div className="flex items-center space-x-3 mb-2">
-                                                                <div className="flex-1 bg-gray-200 rounded-full h-3 overflow-hidden">
-                                                                    <div 
-                                                                        className={`h-3 rounded-full transition-all duration-500 ${getStrengthColor(passwordStrength.level)} shadow-sm`}
-                                                                        style={{ width: `${(passwordStrength.score / 4) * 100}%` }}
-                                                                    />
-                                                                </div>
-                                                                <div className={`flex items-center space-x-1 text-sm font-semibold px-2 py-1 rounded-full ${
-                                                                    passwordStrength.level === 'weak' ? 'bg-red-100 text-red-700' : 
-                                                                    passwordStrength.level === 'medium' ? 'bg-yellow-100 text-yellow-700' : 
-                                                                    'bg-green-100 text-green-700'
-                                                                }`}>
-                                                                    {passwordStrength.level === 'weak' && <span>🔴</span>}
-                                                                    {passwordStrength.level === 'medium' && <span>🟡</span>}
-                                                                    {passwordStrength.level === 'strong' && <span>🟢</span>}
-                                                                    <span>{getStrengthText(passwordStrength.level)}</span>
-                                                                </div>
-                                                            </div>
-                                                            {passwordStrength.feedback.length > 0 && (
-                                                                <div className="bg-orange-50 border border-orange-200 rounded-lg p-3">
-                                                                    <ul className="text-sm text-orange-800 space-y-1">
-                                                                        {passwordStrength.feedback.map((tip, index) => (
-                                                                            <li key={index} className="flex items-center gap-2">
-                                                                                <AlertCircle className="h-3 w-3 text-orange-600 flex-shrink-0" />
-                                                                                {tip}
-                                                                            </li>
-                                                                        ))}
-                                                                    </ul>
-                                                                </div>
-                                                            )}
-                                                        </div>
-                                                    )}
-                                                    
-                                                    {errors.password && (
-                                                        <p className="text-red-600 text-sm mt-1">{errors.password}</p>
-                                                    )}
-                                                </div>
-
-                                                <div>
-                                                    <Label htmlFor="password_confirmation">Confirm Password *</Label>
-                                                    <div className="relative mt-1">
-                                                        <Input
-                                                            id="password_confirmation"
-                                                            type={showPasswordConfirm ? "text" : "password"}
-                                                            value={data.password_confirmation}
-                                                            onChange={(e) => setData('password_confirmation', e.target.value)}
-                                                            required
-                                                        />
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => setShowPasswordConfirm(!showPasswordConfirm)}
-                                                            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
-                                                        >
-                                                            {showPasswordConfirm ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                                                        </button>
-                                                    </div>
-                                                    {errors.password_confirmation && (
-                                                        <p className="text-red-600 text-sm mt-1">{errors.password_confirmation}</p>
-                                                    )}
-                                                </div>
-                                            </div>
+                                
+                                <Button
+                                    type="submit"
+                                    size="lg"
+                                    disabled={processing}
+                                    className="bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 text-white text-xl font-bold px-12 py-4 shadow-xl transform hover:scale-105 transition-all duration-200"
+                                >
+                                    {processing ? (
+                                        <div className="flex items-center space-x-2">
+                                            <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                            </svg>
+                                            <span>🔄 Setting up...</span>
                                         </div>
-                                    </>
-                                )}
-
-                                {/* Google linking for non-Google users */}
-                                {!user.is_google_user && !user.has_google_linked && (
-                                    <>
-                                        <Separator className="bg-orange-100" />
-                                        <div className="text-center p-6 border border-orange-200 rounded-xl bg-gradient-to-r from-orange-50 to-amber-50">
-                                            <div className="w-12 h-12 bg-gradient-to-r from-orange-600 to-orange-700 rounded-xl flex items-center justify-center mx-auto mb-3">
-                                                <svg className="w-6 h-6 text-white" viewBox="0 0 24 24">
-                                                    <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                                                    <path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                                                    <path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-                                                    <path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-                                                </svg>
-                                            </div>
-                                            <h4 className="text-lg font-bold text-orange-900 mb-2">
-                                                🔗 Link Your Google Account
-                                            </h4>
-                                            <p className="text-sm text-orange-700 mb-4 font-medium">
-                                                Optional: Link your Google account for easier sign-ins and enhanced security.
-                                            </p>
-                                            <Button
-                                                type="button"
-                                                onClick={handleLinkGoogle}
-                                                className="w-full bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 text-white font-semibold shadow-lg transform hover:scale-105 transition-all duration-200"
-                                            >
-                                                <Link className="h-4 w-4 mr-2" />
-                                                🚀 Link Google Account
-                                            </Button>
+                                    ) : (
+                                        <div className="flex items-center space-x-2">
+                                            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                            </svg>
+                                            <span>🚀 Complete Setup</span>
                                         </div>
-                                    </>
-                                )}
-                            </CardContent>
-                        </Card>
-
-                        {/* Property Section */}
-                        <Card className="bg-white/90 backdrop-blur-sm shadow-xl border border-orange-100 rounded-2xl">
-                            <CardHeader className="bg-gradient-to-r from-orange-50 to-amber-50 rounded-t-2xl border-b border-orange-100 pb-6">
-                                <CardTitle className="flex items-center gap-3 text-xl">
-                                    <div className="w-8 h-8 bg-gradient-to-r from-orange-600 to-orange-700 rounded-lg flex items-center justify-center">
-                                        <Home className="h-5 w-5 text-white" />
-                                    </div>
-                                    Add Your First Property
-                                </CardTitle>
-                                <CardDescription className="text-gray-600 mt-2">
-                                    🏠 Tell us about your first rental property to get started with property management
-                                </CardDescription>
-                            </CardHeader>
-                            <CardContent className="space-y-6">
-                                {/* Basic property info */}
-                                <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
-                                    <div>
-                                        <Label htmlFor="property_name">Property Name *</Label>
-                                        <Input
-                                            id="property_name"
-                                            type="text"
-                                            value={data.property_name}
-                                            onChange={(e) => setData('property_name', e.target.value)}
-                                            placeholder="e.g., Downtown Apartments, Oak Street House"
-                                            required
-                                            className="mt-1"
-                                        />
-                                        {errors.property_name && (
-                                            <p className="text-red-600 text-sm mt-1">{errors.property_name}</p>
-                                        )}
-                                    </div>
-
-                                    <div>
-                                        <Label htmlFor="property_type">Property Type *</Label>
-                                        <Select value={data.property_type} onValueChange={(value) => setData('property_type', value)}>
-                                            <SelectTrigger className="mt-1">
-                                                <SelectValue placeholder="Select property type" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                {Object.entries(property_types).map(([value, label]) => (
-                                                    <SelectItem key={value} value={value}>
-                                                        {label}
-                                                    </SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
-                                        {errors.property_type && (
-                                            <p className="text-red-600 text-sm mt-1">{errors.property_type}</p>
-                                        )}
-                                    </div>
-                                </div>
-
-                                {/* Address */}
-                                <div>
-                                    <Label htmlFor="property_address">Street Address *</Label>
-                                    <Input
-                                        id="property_address"
-                                        type="text"
-                                        value={data.property_address}
-                                        onChange={(e) => setData('property_address', e.target.value)}
-                                        placeholder="123 Main Street"
-                                        required
-                                        className="mt-1"
-                                    />
-                                    {errors.property_address && (
-                                        <p className="text-red-600 text-sm mt-1">{errors.property_address}</p>
                                     )}
-                                </div>
-
-                                <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
-                                    <div>
-                                        <Label htmlFor="property_city">City *</Label>
-                                        <Input
-                                            id="property_city"
-                                            type="text"
-                                            value={data.property_city}
-                                            onChange={(e) => setData('property_city', e.target.value)}
-                                            required
-                                            className="mt-1"
-                                        />
-                                        {errors.property_city && (
-                                            <p className="text-red-600 text-sm mt-1">{errors.property_city}</p>
-                                        )}
-                                    </div>
-
-                                    <div>
-                                        <Label htmlFor="property_state">State/Province *</Label>
-                                        <Input
-                                            id="property_state"
-                                            type="text"
-                                            value={data.property_state}
-                                            onChange={(e) => setData('property_state', e.target.value)}
-                                            required
-                                            className="mt-1"
-                                        />
-                                        {errors.property_state && (
-                                            <p className="text-red-600 text-sm mt-1">{errors.property_state}</p>
-                                        )}
-                                    </div>
-
-                                    <div>
-                                        <Label htmlFor="property_postal_code">ZIP/Postal Code *</Label>
-                                        <Input
-                                            id="property_postal_code"
-                                            type="text"
-                                            value={data.property_postal_code}
-                                            onChange={(e) => setData('property_postal_code', e.target.value)}
-                                            required
-                                            className="mt-1"
-                                        />
-                                        {errors.property_postal_code && (
-                                            <p className="text-red-600 text-sm mt-1">{errors.property_postal_code}</p>
-                                        )}
-                                    </div>
-                                </div>
-
-                                {/* Property details */}
-                                <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
-                                    <div>
-                                        <Label htmlFor="total_units">Number of Units *</Label>
-                                        <Input
-                                            id="total_units"
-                                            type="number"
-                                            min="1"
-                                            value={data.total_units}
-                                            onChange={(e) => setData('total_units', e.target.value)}
-                                            required
-                                            className="mt-1"
-                                        />
-                                        {errors.total_units && (
-                                            <p className="text-red-600 text-sm mt-1">{errors.total_units}</p>
-                                        )}
-                                    </div>
-
-                                    <div>
-                                        <Label htmlFor="purchase_price">Purchase Price (Optional)</Label>
-                                        <Input
-                                            id="purchase_price"
-                                            type="number"
-                                            min="0"
-                                            step="0.01"
-                                            value={data.purchase_price}
-                                            onChange={(e) => setData('purchase_price', e.target.value)}
-                                            placeholder="350000"
-                                            className="mt-1"
-                                        />
-                                        {errors.purchase_price && (
-                                            <p className="text-red-600 text-sm mt-1">{errors.purchase_price}</p>
-                                        )}
-                                    </div>
-
-                                    <div>
-                                        <Label htmlFor="monthly_rent">Monthly Rent (Optional)</Label>
-                                        <Input
-                                            id="monthly_rent"
-                                            type="number"
-                                            min="0"
-                                            step="0.01"
-                                            value={data.monthly_rent}
-                                            onChange={(e) => setData('monthly_rent', e.target.value)}
-                                            placeholder="2500"
-                                            className="mt-1"
-                                        />
-                                        {errors.monthly_rent && (
-                                            <p className="text-red-600 text-sm mt-1">{errors.monthly_rent}</p>
-                                        )}
-                                    </div>
-                                </div>
-
-                                {/* Description */}
-                                <div>
-                                    <Label htmlFor="description">Property Description (Optional)</Label>
-                                    <Textarea
-                                        id="description"
-                                        value={data.description}
-                                        onChange={(e) => setData('description', e.target.value)}
-                                        placeholder="Describe your property, including key features and amenities..."
-                                        rows={3}
-                                        className="mt-1"
-                                    />
-                                    {errors.description && (
-                                        <p className="text-red-600 text-sm mt-1">{errors.description}</p>
-                                    )}
-                                </div>
-                            </CardContent>
-                        </Card>
-                    </div>
-
-                    {/* Submit */}
-                    <div className="text-center">
-                        <div className="bg-white/90 backdrop-blur-sm shadow-xl border border-orange-100 rounded-2xl p-8">
-                            <div className="mb-6">
-                                <h3 className="text-xl font-bold text-gray-900 mb-2">
-                                    🎯 Ready to Launch Your Rental Business?
-                                </h3>
-                                <p className="text-gray-600">
-                                    Complete your setup and start managing properties like a pro!
-                                </p>
-                            </div>
-                            
-                            <Button
-                                type="submit"
-                                size="lg"
-                                disabled={processing}
-                                className="bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 text-white text-xl font-bold px-12 py-4 shadow-xl transform hover:scale-105 transition-all duration-200"
-                            >
-                                {processing ? (
-                                    <div className="flex items-center space-x-2">
-                                        <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                        </svg>
-                                        <span>🔄 Setting up...</span>
-                                    </div>
-                                ) : (
-                                    <div className="flex items-center space-x-2">
-                                        <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                </Button>
+                                
+                                <div className="flex items-center justify-center space-x-8 mt-6 text-sm text-gray-500">
+                                    <div className="flex items-center space-x-1">
+                                        <svg className="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20">
                                             <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                                         </svg>
-                                        <span>🚀 Complete Setup</span>
+                                        <span>Secure Setup</span>
                                     </div>
-                                )}
-                            </Button>
-                            
-                            <div className="flex items-center justify-center space-x-8 mt-6 text-sm text-gray-500">
-                                <div className="flex items-center space-x-1">
-                                    <svg className="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                                    </svg>
-                                    <span>Secure Setup</span>
-                                </div>
-                                <div className="flex items-center space-x-1">
-                                    <svg className="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                                    </svg>
-                                    <span>2 Minutes</span>
-                                </div>
-                                <div className="flex items-center space-x-1">
-                                    <svg className="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                                    </svg>
-                                    <span>One-time Setup</span>
+                                    <div className="flex items-center space-x-1">
+                                        <svg className="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                        </svg>
+                                        <span>2 Minutes</span>
+                                    </div>
+                                    <div className="flex items-center space-x-1">
+                                        <svg className="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                        </svg>
+                                        <span>One-time Setup</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                </form>
-            </div>
+                    </form>
+                </div>
             </div>
         </AppLayout>
     );
