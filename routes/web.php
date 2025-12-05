@@ -14,6 +14,16 @@ Route::get('/', function () {
 Route::get('auth/google', [App\Http\Controllers\GoogleController::class, 'redirectToGoogle'])->name('google.redirect');
 Route::get('auth/google/callback', [App\Http\Controllers\GoogleController::class, 'handleGoogleCallback'])->name('google.callback');
 
+
+
+// Profile setup routes (require auth but not subscription)
+Route::middleware(['auth', 'verified'])->prefix('profile')->name('profile.')->group(function () {
+    Route::get('/setup', [App\Http\Controllers\ProfileController::class, 'setup'])->name('setup');
+    Route::post('/complete', [App\Http\Controllers\ProfileController::class, 'complete'])->name('complete');
+    Route::post('/password-strength', [App\Http\Controllers\ProfileController::class, 'checkPasswordStrength'])->name('password.strength');
+    Route::get('/link-google', [App\Http\Controllers\ProfileController::class, 'linkGoogle'])->name('link.google');
+});
+
 // Subscription routes (require auth but not subscription)
 Route::middleware(['auth', 'verified'])->prefix('subscription')->name('subscription.')->group(function () {
     Route::get('/', [App\Http\Controllers\SubscriptionController::class, 'index'])->name('index');
@@ -23,7 +33,7 @@ Route::middleware(['auth', 'verified'])->prefix('subscription')->name('subscript
     Route::post('/cancel', [App\Http\Controllers\SubscriptionController::class, 'cancel'])->name('cancel');
 });
 
-Route::middleware(['auth', 'verified', 'subscription'])->group(function () {
+Route::middleware(['auth', 'verified', 'profile.complete', 'subscription'])->group(function () {
     Route::get('dashboard', function () {
         return Inertia::render('dashboard');
     })->name('dashboard');
