@@ -1,4 +1,5 @@
 import AuthLayoutTemplate from '@/layouts/auth/auth-simple-layout';
+import { useFlashMessages } from '@/hooks/use-flash-messages';
 
 export default function AuthLayout({
     children,
@@ -10,6 +11,8 @@ export default function AuthLayout({
     title: string;
     description: string;
 }) {
+    useFlashMessages();
+    
     return (
         <AuthLayoutTemplate title={title} description={description} {...props}>
             {children}

@@ -80,10 +80,8 @@ class ProfileController extends Controller
 
         $user->update($userUpdateData);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Profile completed successfully!'
-        ]);
+        return redirect()->route('profile.property.setup')
+            ->with('success', 'Profile completed successfully!');
     }
 
     /**

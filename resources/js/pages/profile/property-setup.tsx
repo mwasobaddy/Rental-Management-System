@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Head, useForm } from '@inertiajs/react';
+import toast from 'react-hot-toast';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -53,7 +54,16 @@ export default function PropertySetup({ user, property_types }: PropertySetupPro
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        post('/profile/property/complete');
+        post('/profile/property/complete', {
+            onError: (errors) => {
+                // Show validation errors
+                Object.values(errors).forEach(error => {
+                    if (typeof error === 'string') {
+                        toast.error(error);
+                    }
+                });
+            }
+        });
     };
 
     const getTierIcon = (tierName: string) => {

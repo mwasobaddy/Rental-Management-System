@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Head, useForm } from '@inertiajs/react';
+import toast from 'react-hot-toast';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -8,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { AlertCircle, Check, Eye, EyeOff, Link, Shield, User, Home } from 'lucide-react';
+import { AlertCircle, Check, Eye, EyeOff, Link, Shield, User, Home, CircleCheckBig } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Progress } from '@/components/ui/progress';
 import {
@@ -93,8 +94,13 @@ export default function ProfileSetup({ user, property_types }: ProfileSetupProps
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         post('/profile/complete', {
-            onSuccess: () => {
-                window.location.href = '/profile/property/setup';
+            onError: (errors) => {
+                // Show validation errors
+                Object.values(errors).forEach(error => {
+                    if (typeof error === 'string') {
+                        toast.error(error);
+                    }
+                });
             }
         });
     };
@@ -109,13 +115,13 @@ export default function ProfileSetup({ user, property_types }: ProfileSetupProps
 
         // Validate file type
         if (!file.type.startsWith('image/')) {
-            alert('Please select an image file');
+            toast.error('Please select an image file');
             return;
         }
 
         // Validate file size (max 5MB)
         if (file.size > 5 * 1024 * 1024) {
-            alert('File size must be less than 5MB');
+            toast.error('File size must be less than 5MB');
             return;
         }
 
@@ -129,12 +135,13 @@ export default function ProfileSetup({ user, property_types }: ProfileSetupProps
                 setAvatarPreview(base64String);
                 setData('avatar', base64String);
                 setAvatarUploading(false);
+                toast.success('Profile picture updated successfully!');
             };
             reader.readAsDataURL(file);
         } catch (error) {
             console.error('Error uploading avatar:', error);
             setAvatarUploading(false);
-            alert('Failed to upload avatar. Please try again.');
+            toast.error('Failed to upload avatar. Please try again.');
         }
     };
 
@@ -274,7 +281,7 @@ export default function ProfileSetup({ user, property_types }: ProfileSetupProps
 
                             {/* User Profile Section */}
                             <Card className="bg-white/90 backdrop-blur-sm shadow-xl border border-orange-100 rounded-2xl col-span-5 xl:col-span-3">
-                                <CardHeader className="bg-gradient-to-r from-orange-50 to-amber-50 rounded-t-2xl border-b border-orange-100 pb-6">
+                                <CardHeader className="rounded-t-2xl pb-0">
                                     <CardTitle className="flex items-center gap-3 text-xl">
                                         <div className="w-8 h-8 bg-gradient-to-r from-orange-600 to-orange-700 rounded-lg flex items-center justify-center">
                                             <User className="h-5 w-5 text-white" />
@@ -285,25 +292,70 @@ export default function ProfileSetup({ user, property_types }: ProfileSetupProps
                                         📝 Complete your personal profile information to get started
                                     </CardDescription>
                                 </CardHeader>
+                                <Separator className="border-orange-100 px-6" />
                                 <CardContent className="space-y-6">
                                     {/* Email (read-only) */}
                                     <div>
-                                        <Label htmlFor="email">Email Address</Label>
+                                        {/* <Label htmlFor="email">Email Address</Label>
                                         <Input
                                             id="email"
                                             type="email"
                                             value={user.email}
                                             disabled
                                             className="bg-gray-50"
-                                        />
-                                        <p className="text-sm text-gray-500 mt-1">
-                                            {user.is_google_user && (
-                                                <span className="flex items-center gap-1">
-                                                    <Check className="h-4 w-4 text-green-600" />
-                                                    Verified with Google
-                                                </span>
-                                            )}
-                                        </p>
+                                        /> */}
+                                        <div className="mt-2">
+                                            <Label htmlFor="email">Email Address</Label>
+                                            <div className="flex items-center justify-between gap-4 border-1 px-2 py-1 rounded-lg mt-1">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="flex flex-col">
+                                                        <span className="font-medium text-gray-800">{user.email}</span>
+                                                    </div>
+
+                                                    {user.is_google_user && (
+                                                        <Badge className="flex items-center gap-2 bg-gradient-to-r from-green-100 to-green-50 text-green-800 border-green-200 shadow-sm">
+                                                            <Check className="h-4 w-4" />
+                                                            Verified with Google
+                                                        </Badge>
+                                                    )}
+                                                </div>
+
+                                                <div className="flex items-center gap-2">
+                                                    <button
+                                                        type="button"
+                                                        title="Copy email"
+                                                        onClick={async () => {
+                                                            try {
+                                                                await navigator.clipboard.writeText(user.email);
+                                                            } catch (e) {
+                                                                console.error('Copy failed', e);
+                                                            }
+                                                        }}
+                                                        className="inline-flex items-center justify-center p-2 rounded-full bg-orange-50 hover:bg-orange-100 text-orange-700 shadow-sm transition"
+                                                    >
+                                                        <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <rect x="9" y="9" width="13" height="13" rx="2" ry="2" strokeWidth="1.5"></rect>
+                                                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"></path>
+                                                        </svg>
+                                                    </button>
+
+                                                    <a
+                                                        href="mailto:{user.email}"
+                                                        className="inline-flex items-center gap-2 px-3 rounded-lg bg-white/60 hover:bg-white text-sm text-orange-700 border border-orange-100 shadow-sm transition"
+                                                    >
+                                                        <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path d="M3 8l7.5 5L18 8" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"></path>
+                                                            <rect x="3" y="5" width="18" height="14" rx="2" ry="2" strokeWidth="1.5"></rect>
+                                                        </svg>
+                                                        Email
+                                                    </a>
+                                                </div>
+                                            </div>
+
+                                            <p className="text-xs text-gray-400 mt-2">
+                                                Keeping your email verified helps with account recovery and trust. You can change this later in account settings.
+                                            </p>
+                                        </div>
                                     </div>
 
                                     {/* Name fields */}
@@ -342,7 +394,6 @@ export default function ProfileSetup({ user, property_types }: ProfileSetupProps
                                     {/* Password section for Google users or users without password */}
                                     {(!user.has_password || user.is_google_user) && (
                                         <>
-                                            <Separator />
                                             <div>
                                                 <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
                                                     <div>
@@ -463,68 +514,33 @@ export default function ProfileSetup({ user, property_types }: ProfileSetupProps
                                         </>
                                     )}
                                 </CardContent>
+
+                                <Separator className="border-orange-100 px-6" />
+                                
+                                <div className="px-6 flex justify-end">
+                                    <Button
+                                        type="submit"
+                                        size="lg"
+                                        disabled={processing}
+                                        className="bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 text-white text-xl font-bold px-12 py-4 shadow-xl transform hover:scale-105 transition-all duration-200"
+                                    >
+                                        {processing ? (
+                                            <div className="flex items-center space-x-2">
+                                                <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                </svg>
+                                                <span>Saving Profile...</span>
+                                            </div>
+                                        ) : (
+                                            <div className="flex items-center space-x-2">
+                                                <CircleCheckBig />
+                                                <span>Save Profile</span>
+                                            </div>
+                                        )}
+                                    </Button>
+                                </div>
                             </Card>
-
-
-                        </div>
-
-                        {/* Submit */}
-                        <div className="text-center">
-                            <div className="bg-white/90 backdrop-blur-sm shadow-xl border border-orange-100 rounded-2xl p-8">
-                                <div className="mb-6">
-                                    <h3 className="text-xl font-bold text-gray-900 mb-2">
-                                        👤 Complete Your Profile Setup
-                                    </h3>
-                                    <p className="text-gray-600">
-                                        Finish setting up your personal information, then we'll help you add your first property!
-                                    </p>
-                                </div>
-                                
-                                <Button
-                                    type="submit"
-                                    size="lg"
-                                    disabled={processing}
-                                    className="bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 text-white text-xl font-bold px-12 py-4 shadow-xl transform hover:scale-105 transition-all duration-200"
-                                >
-                                    {processing ? (
-                                        <div className="flex items-center space-x-2">
-                                            <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                            </svg>
-                                            <span>Saving Profile...</span>
-                                        </div>
-                                    ) : (
-                                        <div className="flex items-center space-x-2">
-                                            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                                            </svg>
-                                            <span>Continue to Property Setup →</span>
-                                        </div>
-                                    )}
-                                </Button>
-                                
-                                <div className="flex items-center justify-center space-x-8 mt-6 text-sm text-gray-500">
-                                    <div className="flex items-center space-x-1">
-                                        <svg className="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                                        </svg>
-                                        <span>Secure Setup</span>
-                                    </div>
-                                    <div className="flex items-center space-x-1">
-                                        <svg className="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                                        </svg>
-                                        <span>2 Minutes</span>
-                                    </div>
-                                    <div className="flex items-center space-x-1">
-                                        <svg className="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                                        </svg>
-                                        <span>One-time Setup</span>
-                                    </div>
-                                </div>
-                            </div>
                         </div>
                     </form>
                 </div>
