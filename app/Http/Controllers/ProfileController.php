@@ -26,6 +26,7 @@ class ProfileController extends Controller
                 'email' => $user->email,
                 'first_name' => $user->first_name,
                 'last_name' => $user->last_name,
+                'avatar' => $user->avatar,
                 'is_google_user' => $user->isGoogleUser(),
                 'has_password' => !$user->needsPasswordSetup(),
                 'has_google_linked' => $user->has_google_linked ?? false,
@@ -58,6 +59,7 @@ class ProfileController extends Controller
             'password' => $user->needsPasswordSetup() 
                 ? ['required', 'confirmed', Rules\Password::defaults()] 
                 : ['nullable', 'confirmed', Rules\Password::defaults()],
+            'avatar' => 'nullable|string',
         ]);
 
         // Update user profile
@@ -69,6 +71,11 @@ class ProfileController extends Controller
 
         if ($request->filled('password') && $user->needsPasswordSetup()) {
             $userUpdateData['password'] = Hash::make($request->password);
+        }
+
+        // Handle avatar upload
+        if ($request->filled('avatar')) {
+            $userUpdateData['avatar'] = $request->avatar;
         }
 
         $user->update($userUpdateData);

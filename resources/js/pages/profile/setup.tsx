@@ -25,6 +25,7 @@ interface User {
     email: string;
     first_name?: string;
     last_name?: string;
+    avatar?: string;
     is_google_user: boolean;
     has_password: boolean;
     has_google_linked: boolean;
@@ -50,6 +51,8 @@ export default function ProfileSetup({ user, property_types }: ProfileSetupProps
         level: 'weak',
         feedback: []
     });
+    const [avatarPreview, setAvatarPreview] = useState<string | null>(user.avatar || null);
+    const [avatarUploading, setAvatarUploading] = useState(false);
 
     const { data, setData, post, processing, errors } = useForm({
         // User fields
@@ -57,6 +60,7 @@ export default function ProfileSetup({ user, property_types }: ProfileSetupProps
         last_name: user.last_name || '',
         password: '',
         password_confirmation: '',
+        avatar: '',
     });
 
     // Check password strength when password changes
@@ -97,6 +101,61 @@ export default function ProfileSetup({ user, property_types }: ProfileSetupProps
 
     const handleLinkGoogle = () => {
         window.location.href = '/auth/google?link=true';
+    };
+
+    const handleAvatarUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (!file) return;
+
+        // Validate file type
+        if (!file.type.startsWith('image/')) {
+            alert('Please select an image file');
+            return;
+        }
+
+        // Validate file size (max 5MB)
+        if (file.size > 5 * 1024 * 1024) {
+            alert('File size must be less than 5MB');
+            return;
+        }
+
+        setAvatarUploading(true);
+
+        try {
+            // Convert to base64
+            const reader = new FileReader();
+            reader.onload = () => {
+                const base64String = reader.result as string;
+                setAvatarPreview(base64String);
+                setData('avatar', base64String);
+                setAvatarUploading(false);
+            };
+            reader.readAsDataURL(file);
+        } catch (error) {
+            console.error('Error uploading avatar:', error);
+            setAvatarUploading(false);
+            alert('Failed to upload avatar. Please try again.');
+        }
+    };
+
+    const getAvatarSrc = () => {
+        if (avatarPreview) return avatarPreview;
+        if (user.avatar) return user.avatar;
+        return null;
+    };
+
+    const getInitials = () => {
+        if (user.first_name && user.last_name) {
+            return (user.first_name[0] + user.last_name[0]).toUpperCase();
+        }
+        if (user.name) {
+            const names = user.name.split(' ');
+            if (names.length >= 2) {
+                return (names[0][0] + names[names.length - 1][0]).toUpperCase();
+            }
+            return user.name[0].toUpperCase();
+        }
+        return 'U';
     };
 
     const getStrengthColor = (level: string) => {
@@ -150,19 +209,65 @@ export default function ProfileSetup({ user, property_types }: ProfileSetupProps
 
                     <form onSubmit={handleSubmit} className="space-y-8">
                         <div className="grid grid-cols-1 xl:grid-cols-5 gap-8">
-                            {/* card with image as profile picture */}
+                            {/* Profile Picture Section */}
                             <Card className="bg-white/90 backdrop-blur-sm shadow-xl border border-orange-100 rounded-2xl col-span-5 xl:col-span-2">
-                                <CardHeader className="rounded-t-2xl border-orange-100 pb-6">
-                                    <CardTitle className="flex items-center gap-3 text-xl font-bold">
-                                        {user.first_name
+                                <CardHeader className="rounded-t-2xl border-orange-100 pb-6 text-center">
+                                    <CardTitle className="text-xl font-bold mb-4">
+                                        Welcome {user.first_name
                                             ? user.first_name.charAt(0).toUpperCase() + user.first_name.slice(1) + (user.last_name ? ' ' + user.last_name.charAt(0).toUpperCase() + user.last_name.slice(1) : '')
                                             : user.name.charAt(0).toUpperCase() + user.name.slice(1)}!
                                     </CardTitle>
-                                    <CardDescription className="text-gray-600 mt-2">
-                                        <Avatar className="size-60 xl:size-80 mx-auto mt-4 mb-2">
-                                            <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
-                                            <AvatarFallback>CN</AvatarFallback>
-                                        </Avatar>
+                                    <CardDescription className="text-gray-600">
+                                        <div className="relative inline-block">
+                                            <Avatar className="size-60 xl:size-80 mx-auto mb-4 border-4 border-orange-100">
+                                                <AvatarImage 
+                                                    src={getAvatarSrc() || undefined} 
+                                                    alt={user.name || 'Profile'}
+                                                    className="object-cover"
+                                                />
+                                                <AvatarFallback className="text-4xl xl:text-6xl font-bold bg-gradient-to-r from-orange-500 to-orange-600 text-white">
+                                                    {getInitials()}
+                                                </AvatarFallback>
+                                            </Avatar>
+                                            
+                                            {/* Upload Button Overlay */}
+                                            <div className="absolute bottom-4 right-4 xl:bottom-6 xl:right-6">
+                                                <label htmlFor="avatar-upload" className="cursor-pointer">
+                                                    <div className="w-12 h-12 bg-gradient-to-r from-orange-600 to-orange-700 rounded-full flex items-center justify-center shadow-lg hover:from-orange-700 hover:to-orange-800 transition-all duration-200">
+                                                        {avatarUploading ? (
+                                                            <svg className="animate-spin h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                            </svg>
+                                                        ) : (
+                                                            <svg className="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                            </svg>
+                                                        )}
+                                                    </div>
+                                                </label>
+                                                <input
+                                                    id="avatar-upload"
+                                                    type="file"
+                                                    accept="image/*"
+                                                    onChange={handleAvatarUpload}
+                                                    className="hidden"
+                                                    disabled={avatarUploading}
+                                                />
+                                            </div>
+                                        </div>
+                                        
+                                        <div className="mt-2">
+                                            <p className="text-sm font-medium text-gray-700 mb-1">Profile Picture</p>
+                                            <p className="text-xs text-gray-500">
+                                                {user.is_google_user && !data.avatar ? 
+                                                    'Using Google profile picture' : 
+                                                    'Click the camera icon to upload'
+                                                }
+                                            </p>
+                                            <p className="text-xs text-gray-400 mt-1">Max 5MB • JPG, PNG, GIF</p>
+                                        </div>
                                     </CardDescription>
                                 </CardHeader>
                             </Card>
@@ -239,11 +344,6 @@ export default function ProfileSetup({ user, property_types }: ProfileSetupProps
                                         <>
                                             <Separator />
                                             <div>
-                                                <h3 className="text-lg font-medium flex items-center gap-2 mb-4">
-                                                    <Shield className="h-5 w-5" />
-                                                    Set Up Password
-                                                </h3>
-                                                
                                                 <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
                                                     <div>
                                                         <Label htmlFor="password">Password *</Label>
