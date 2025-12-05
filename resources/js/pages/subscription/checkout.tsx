@@ -4,7 +4,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
 import { CheckIcon } from 'lucide-react';
-import AuthLayout from '@/layouts/auth-layout';
+import { BreadcrumbItem } from '@/types';
+import AppLayout from '@/layouts/app-layout';
 
 interface SubscriptionTier {
     id: number;
@@ -44,21 +45,58 @@ export default function Checkout({
         expiry_month: '',
         expiry_year: '',
         cvv: '',
+        payment: '',
     });
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        post(route('subscription.subscribe'));
+        
+        // Debug: Log everything before submission
+        console.log('Form submission started');
+        console.log('Form data:', data);
+        console.log('Processing state:', processing);
+        console.log('Current errors:', errors);
+        
+        // Use direct URL instead of route helper for now
+        post('/subscription/subscribe', {
+            onSuccess: (page) => {
+                console.log('✅ Subscription successful!', page);
+            },
+            onError: (errors) => {
+                console.error('❌ Subscription errors:', errors);
+                // Force show the errors in an alert for debugging
+                alert('Form errors: ' + JSON.stringify(errors, null, 2));
+            },
+            onFinish: () => {
+                console.log('🔄 Subscription request finished');
+            },
+            onStart: () => {
+                console.log('🚀 Request started');
+            }
+        });
     };
+    
+        
+    const breadcrumbs: BreadcrumbItem[] = [
+        {
+            title: 'Dashboard',
+            href: '/dashboard',
+        },
+        {
+            title: 'Choose Your Plan',
+            href: '/subscription',
+        },
+        {
+            title: 'Complete Your Subscription',
+            href: '#',
+        },
+    ];
 
     return (
-        <AuthLayout
-            title="Complete Your Subscription"
-            description="Secure checkout for your rental management subscription"
-        >
+        <AppLayout breadcrumbs={breadcrumbs}>
             <Head title={`Subscribe to ${tier.name}`} />
 
-            <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="max-w-7xl lg:mx-auto px-4 sm:px-6 lg:px-8 mt-8 mb-16">
                 <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
                     {/* Plan Summary */}
                     <div className="bg-white shadow rounded-lg p-6">
@@ -190,6 +228,9 @@ export default function Checkout({
                                         required
                                         className="mt-1"
                                     />
+                                    {errors.expiry_month && (
+                                        <p className="mt-1 text-sm text-red-600">{errors.expiry_month}</p>
+                                    )}
                                 </div>
                                 <div>
                                     <Label htmlFor="expiry_year">Year</Label>
@@ -203,6 +244,9 @@ export default function Checkout({
                                         required
                                         className="mt-1"
                                     />
+                                    {errors.expiry_year && (
+                                        <p className="mt-1 text-sm text-red-600">{errors.expiry_year}</p>
+                                    )}
                                 </div>
                                 <div>
                                     <Label htmlFor="cvv">CVV</Label>
@@ -216,12 +260,27 @@ export default function Checkout({
                                         required
                                         className="mt-1"
                                     />
+                                    {errors.cvv && (
+                                        <p className="mt-1 text-sm text-red-600">{errors.cvv}</p>
+                                    )}
                                 </div>
                             </div>
 
                             {errors.payment && (
                                 <div className="bg-red-50 border border-red-200 rounded-lg p-4">
                                     <p className="text-sm text-red-800">{errors.payment}</p>
+                                </div>
+                            )}
+                            
+                            {/* Display any other errors */}
+                            {Object.keys(errors).length > 0 && !errors.payment && (
+                                <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                                    <p className="text-sm text-red-800 font-medium mb-2">Please check the following errors:</p>
+                                    <ul className="text-sm text-red-700 space-y-1">
+                                        {Object.entries(errors).map(([field, message]) => (
+                                            <li key={field}>• {field}: {message}</li>
+                                        ))}
+                                    </ul>
                                 </div>
                             )}
 
@@ -253,6 +312,6 @@ export default function Checkout({
                     </div>
                 </div>
             </div>
-        </AuthLayout>
+        </AppLayout>
     );
 }
