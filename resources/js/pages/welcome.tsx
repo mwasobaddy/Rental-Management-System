@@ -89,37 +89,39 @@ export default function Welcome() {
             </Head>
             
             {/* Navigation */}
-            <nav className="bg-white shadow-sm border-b border-gray-200">
+            <nav className="bg-white/95 backdrop-blur-md shadow-sm border-b border-orange-100 sticky top-0 z-50">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex justify-between items-center h-16">
                         <div className="flex items-center">
-                            <Link href="/" className="text-2xl font-bold text-blue-600">
+                            <Link href="/" className="text-2xl font-bold bg-gradient-to-r from-orange-600 to-orange-700 bg-clip-text text-transparent">
                                 RentFlow
                             </Link>
                         </div>
                         
                         <div className="hidden md:flex items-center space-x-8">
-                            <a href="#features" className="text-gray-700 hover:text-blue-600 transition-colors">
+                            <a href="#features" className="text-gray-700 hover:text-orange-600 transition-colors font-medium">
                                 Features
                             </a>
-                            <a href="#pricing" className="text-gray-700 hover:text-blue-600 transition-colors">
+                            <a href="#pricing" className="text-gray-700 hover:text-orange-600 transition-colors font-medium">
                                 Pricing
                             </a>
                             {auth.user ? (
                                 <div className="flex items-center space-x-4">
                                     <Link 
                                         href={route('subscription.index')} 
-                                        className="text-gray-700 hover:text-blue-600 transition-colors"
+                                        className="text-gray-700 hover:text-orange-600 transition-colors font-medium"
                                     >
                                         Subscription
                                     </Link>
                                     <Link href={dashboard()}>
-                                        <Button>Dashboard</Button>
+                                        <Button className="bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800">Dashboard</Button>
                                     </Link>
                                 </div>
                             ) : (
                                 <Link href={login()}>
-                                    <Button>Sign in with Google</Button>
+                                    <Button className="bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 text-white shadow-lg">
+                                        Sign in with Google
+                                    </Button>
                                 </Link>
                             )}
                         </div>
@@ -128,11 +130,11 @@ export default function Welcome() {
                         <div className="md:hidden">
                             {auth.user ? (
                                 <Link href={dashboard()}>
-                                    <Button size="sm">Dashboard</Button>
+                                    <Button size="sm" className="bg-orange-600 hover:bg-orange-700">Dashboard</Button>
                                 </Link>
                             ) : (
                                 <Link href={login()}>
-                                    <Button size="sm">Sign In</Button>
+                                    <Button size="sm" className="bg-orange-600 hover:bg-orange-700">Sign In</Button>
                                 </Link>
                             )}
                         </div>
@@ -400,27 +402,57 @@ export default function Welcome() {
             </div>
 
             {/* CTA Section */}
-            <div className="bg-blue-600 py-20">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-                    <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-                        Ready to Transform Your Rental Business?
-                    </h2>
-                    <p className="text-xl text-blue-100 mb-8 max-w-3xl mx-auto">
-                        Join thousands of successful landlords who trust RentFlow to manage their properties efficiently and profitably.
-                    </p>
-                    {auth.user ? (
-                        <Link href={dashboard()}>
-                            <Button size="lg" variant="secondary" className="px-8 py-4">
-                                Access Your Dashboard
-                            </Button>
-                        </Link>
-                    ) : (
-                        <Link href={login()}>
-                            <Button size="lg" variant="secondary" className="px-8 py-4">
-                                Start Free Trial Today
-                            </Button>
-                        </Link>
-                    )}
+            <div className="relative bg-gradient-to-br from-orange-600 via-orange-700 to-amber-700 py-20 overflow-hidden">
+                {/* Background Pattern */}
+                <div className="absolute inset-0 opacity-20">
+                    <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+                        <defs>
+                            <pattern id="cta-pattern" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
+                                <circle cx="10" cy="10" r="1" fill="white" fillOpacity="0.3" />
+                            </pattern>
+                        </defs>
+                        <rect width="100%" height="100%" fill="url(#cta-pattern)" />
+                    </svg>
+                </div>
+                
+                <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                    <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-12 border border-white/20">
+                        <h2 className="text-3xl md:text-5xl font-bold text-white mb-6">
+                            Ready to Transform Your Rental Business?
+                        </h2>
+                        <p className="text-xl text-orange-100 mb-10 max-w-3xl mx-auto leading-relaxed">
+                            Join thousands of successful landlords who trust RentFlow to manage their properties efficiently and profitably.
+                        </p>
+                        {auth.user ? (
+                            <Link href={dashboard()}>
+                                <Button size="lg" className="bg-white text-orange-700 hover:bg-orange-50 px-10 py-4 text-lg font-semibold shadow-xl transform hover:scale-105 transition-all duration-200">
+                                    Access Your Dashboard
+                                </Button>
+                            </Link>
+                        ) : (
+                            <Link href={login()}>
+                                <Button size="lg" className="bg-white text-orange-700 hover:bg-orange-50 px-10 py-4 text-lg font-semibold shadow-xl transform hover:scale-105 transition-all duration-200">
+                                    Start Free Trial Today
+                                </Button>
+                            </Link>
+                        )}
+                        
+                        {/* Trust indicators */}
+                        <div className="grid grid-cols-3 gap-8 mt-12 pt-8 border-t border-white/20">
+                            <div className="text-center">
+                                <div className="text-3xl font-bold text-white mb-1">10,000+</div>
+                                <div className="text-orange-100 text-sm">Happy Landlords</div>
+                            </div>
+                            <div className="text-center">
+                                <div className="text-3xl font-bold text-white mb-1">99.9%</div>
+                                <div className="text-orange-100 text-sm">Uptime</div>
+                            </div>
+                            <div className="text-center">
+                                <div className="text-3xl font-bold text-white mb-1">24/7</div>
+                                <div className="text-orange-100 text-sm">Support</div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -429,7 +461,7 @@ export default function Welcome() {
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
                         <div className="col-span-1 md:col-span-2">
-                            <Link href="/" className="text-2xl font-bold text-white mb-4 block">
+                            <Link href="/" className="text-2xl font-bold bg-gradient-to-r from-orange-400 to-orange-500 bg-clip-text text-transparent mb-4 block">
                                 RentFlow
                             </Link>
                             <p className="text-gray-400 mb-4 max-w-md">

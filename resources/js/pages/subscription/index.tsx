@@ -101,33 +101,52 @@ export default function SubscriptionIndex({
                 <div className="max-w-7xl lg:mx-auto px-4 sm:px-6 lg:px-8 mt-8 mb-16">
                     {/* Current Subscription Status */}
                     {currentSubscription && (
-                        <div className="mb-8 p-6 bg-blue-50 border border-blue-200 rounded-lg">
+                        <div className="mb-8 p-6 bg-gradient-to-r from-orange-50 to-amber-50 border border-orange-200 rounded-2xl shadow-sm">
                             <div className="flex items-center justify-between">
                                 <div>
-                                    <h3 className="text-lg font-medium text-blue-900">
-                                        Current Plan: {currentSubscription.tier_name}
-                                    </h3>
-                                    <p className="text-blue-700">
+                                    <div className="flex items-center space-x-2 mb-2">
+                                        <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+                                        <h3 className="text-lg font-semibold text-orange-900">
+                                            Current Plan: {currentSubscription.tier_name}
+                                        </h3>
+                                    </div>
+                                    <p className="text-orange-700 font-medium">
                                         {currentSubscription.is_on_trial && (
-                                            <>Trial expires on {currentSubscription.trial_ends_at}</>
+                                            <>🎯 Trial expires on {currentSubscription.trial_ends_at}</>
                                         )}
                                         {currentSubscription.is_active && !currentSubscription.is_on_trial && (
-                                            <>Renews on {currentSubscription.current_period_ends_at}</>
+                                            <>🔄 Renews on {currentSubscription.current_period_ends_at}</>
                                         )}
                                     </p>
                                     {currentSubscription.days_until_expiry <= 7 && currentSubscription.days_until_expiry > 0 && (
-                                        <p className="text-amber-600 font-medium">
-                                            ⚠️ Expires in {currentSubscription.days_until_expiry} days
-                                        </p>
+                                        <div className="flex items-center space-x-2 mt-2 p-2 bg-amber-100 rounded-lg border border-amber-300">
+                                            <svg className="w-5 h-5 text-amber-600" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                                            </svg>
+                                            <p className="text-amber-800 font-medium">
+                                                Expires in {currentSubscription.days_until_expiry} days
+                                            </p>
+                                        </div>
                                     )}
                                 </div>
                                 <div className="text-right">
-                                    <div className="text-sm text-blue-700">
+                                    <div className="text-sm text-orange-700 space-y-1">
                                         {currentSubscription.remaining_properties !== null && (
-                                            <p>{currentSubscription.remaining_properties} properties remaining</p>
+                                            <div className="flex items-center space-x-2">
+                                                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path d="M10.707 2.293a1 1 0 00-1.414 0l-9 9a1 1 0 001.414 1.414L10 4.414l8.293 8.293a1 1 0 001.414-1.414l-9-9z" />
+                                                    <path d="M17 18a1 1 0 01-1 1H4a1 1 0 01-1-1v-8a1 1 0 011-1h1a1 1 0 010 2H6v6h8v-6h1a1 1 0 110-2h1a1 1 0 011 1v8z" />
+                                                </svg>
+                                                <p>{currentSubscription.remaining_properties} properties remaining</p>
+                                            </div>
                                         )}
                                         {currentSubscription.remaining_units !== null && (
-                                            <p>{currentSubscription.remaining_units} units remaining</p>
+                                            <div className="flex items-center space-x-2">
+                                                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd" />
+                                                </svg>
+                                                <p>{currentSubscription.remaining_units} units remaining</p>
+                                            </div>
                                         )}
                                     </div>
                                 </div>
@@ -154,21 +173,31 @@ export default function SubscriptionIndex({
                         </div>
                     )}
 
+                    {/* Hero Section */}
+                    <div className="text-center mb-12">
+                        <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+                            Choose Your <span className="bg-gradient-to-r from-orange-600 to-orange-700 bg-clip-text text-transparent">Perfect Plan</span>
+                        </h1>
+                        <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+                            Scale your rental business with flexible pricing designed to grow with you
+                        </p>
+                    </div>
+
                     {/* Pricing Grid */}
-                    <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+                    <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
                         {tiers.map((tier) => (
                             <div
                                 key={tier.id}
-                                className={`relative rounded-lg shadow-sm border-2 ${
+                                className={`relative rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 border-2 flex flex-col ${
                                     tier.is_popular
-                                        ? 'border-blue-500 shadow-blue-100'
-                                        : 'border-gray-200'
-                                } bg-white p-6`}
+                                        ? 'border-orange-300 shadow-orange-100 bg-gradient-to-b from-orange-50 to-white'
+                                        : 'border-gray-200 bg-white'
+                                } p-8`}
                             >
                                 {tier.is_popular && (
-                                    <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                                        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                            Most Popular
+                                    <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
+                                        <span className="inline-flex items-center px-4 py-2 rounded-full text-sm font-semibold bg-gradient-to-r from-orange-600 to-orange-700 text-white shadow-lg">
+                                            ⭐ Most Popular
                                         </span>
                                     </div>
                                 )}
@@ -197,7 +226,7 @@ export default function SubscriptionIndex({
                                     )}
                                 </div>
 
-                                <div className="mt-6">
+                                <div className="mt-6 flex-1">
                                     <ul className="space-y-3">
                                         {tier.features.slice(0, 6).map((feature, index) => (
                                             <li key={index} className="flex items-start">
@@ -210,15 +239,19 @@ export default function SubscriptionIndex({
                                     </ul>
                                 </div>
 
-                                <div className="mt-6">
+                                <div className="mt-8">
                                     {tier.slug === 'trial' ? (
                                         <Button
                                             onClick={handleStartTrial}
                                             disabled={processing || userStatus === 'trial'}
-                                            className="w-full"
+                                            className={`w-full py-3 text-lg font-semibold transition-all duration-200 ${
+                                                userStatus === 'trial' 
+                                                    ? 'bg-gray-100 text-gray-500 cursor-not-allowed' 
+                                                    : 'bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 text-white shadow-lg transform hover:scale-105'
+                                            }`}
                                             variant={userStatus === 'trial' ? 'secondary' : 'default'}
                                         >
-                                            {userStatus === 'trial' ? 'Current Plan' : 'Start Free Trial'}
+                                            {userStatus === 'trial' ? '✓ Current Plan' : '🚀 Start Free Trial'}
                                         </Button>
                                     ) : (
                                         <Link
@@ -226,10 +259,12 @@ export default function SubscriptionIndex({
                                             className="block"
                                         >
                                             <Button
-                                                className={`w-full ${
-                                                    tier.is_popular
-                                                        ? 'bg-blue-600 hover:bg-blue-700'
-                                                        : ''
+                                                className={`w-full py-3 text-lg font-semibold transition-all duration-200 ${
+                                                    currentSubscription?.tier_slug === tier.slug
+                                                        ? 'bg-gray-100 text-gray-500 cursor-not-allowed'
+                                                        : tier.is_popular
+                                                        ? 'bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 text-white shadow-lg transform hover:scale-105'
+                                                        : 'border-2 border-orange-200 text-orange-700 hover:bg-orange-50 hover:border-orange-300'
                                                 }`}
                                                 variant={
                                                     currentSubscription?.tier_slug === tier.slug
@@ -240,8 +275,8 @@ export default function SubscriptionIndex({
                                                 }
                                             >
                                                 {currentSubscription?.tier_slug === tier.slug
-                                                    ? 'Current Plan'
-                                                    : 'Choose Plan'}
+                                                    ? '✓ Current Plan'
+                                                    : '🎯 Choose Plan'}
                                             </Button>
                                         </Link>
                                     )}
@@ -251,54 +286,66 @@ export default function SubscriptionIndex({
                     </div>
 
                     {/* Features Comparison */}
-                    <div className="mt-12 text-center">
-                        <h2 className="text-2xl font-bold text-gray-900">
-                            Compare Plans
+                    <div className="mt-16 text-center">
+                        <h2 className="text-3xl font-bold text-gray-900 mb-4">
+                            <span className="bg-gradient-to-r from-orange-600 to-orange-700 bg-clip-text text-transparent">Compare Plans</span>
                         </h2>
-                        <div className="mt-6 overflow-auto rounded-lg shadow border">
+                        <p className="text-gray-600 mb-8">Detailed breakdown of what's included in each plan</p>
+                        <div className="overflow-auto rounded-2xl shadow-xl border border-orange-100">
                             <table className="min-w-full">
-                                <thead className="bg-gray-50">
+                                <thead className="bg-gradient-to-r from-orange-50 to-amber-50">
                                     <tr>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        <th className="px-6 py-4 text-left text-sm font-semibold text-orange-900 tracking-wide">
                                             Feature
                                         </th>
                                         {tiers.filter(t => t.slug !== 'trial').map((tier) => (
                                             <th
                                                 key={tier.id}
-                                                className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider"
+                                                className={`px-6 py-4 text-center text-sm font-semibold tracking-wide ${
+                                                    tier.is_popular ? 'text-orange-900 bg-orange-100' : 'text-orange-800'
+                                                }`}
                                             >
                                                 {tier.name}
+                                                {tier.is_popular && (
+                                                    <div className="text-xs text-orange-600 mt-1">⭐ Popular</div>
+                                                )}
                                             </th>
                                         ))}
                                     </tr>
                                 </thead>
-                                <tbody className="bg-white divide-y divide-gray-200">
-                                    <tr>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                            Properties
+                                <tbody className="bg-white divide-y divide-orange-100">
+                                    <tr className="hover:bg-orange-25 transition-colors">
+                                        <td className="px-6 py-5 whitespace-nowrap text-sm font-semibold text-gray-900">
+                                            🏠 Properties
                                         </td>
                                         {tiers.filter(t => t.slug !== 'trial').map((tier) => (
-                                            <td key={tier.id} className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                                            <td key={tier.id} className={`px-6 py-5 whitespace-nowrap text-sm font-medium text-center ${
+                                                tier.is_popular ? 'text-orange-700 bg-orange-50' : 'text-gray-600'
+                                            }`}>
                                                 {formatLimit(tier.max_properties, 'property')}
                                             </td>
                                         ))}
                                     </tr>
-                                    <tr>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                            Units
+                                    <tr className="hover:bg-orange-25 transition-colors bg-orange-25/30">
+                                        <td className="px-6 py-5 whitespace-nowrap text-sm font-semibold text-gray-900">
+                                            🏢 Units
                                         </td>
                                         {tiers.filter(t => t.slug !== 'trial').map((tier) => (
-                                            <td key={tier.id} className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                                            <td key={tier.id} className={`px-6 py-5 whitespace-nowrap text-sm font-medium text-center ${
+                                                tier.is_popular ? 'text-orange-700 bg-orange-50' : 'text-gray-600'
+                                            }`}>
                                                 {formatLimit(tier.max_units, 'unit')}
                                             </td>
                                         ))}
                                     </tr>
-                                    <tr>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                            Tenants
+                                    <tr className="hover:bg-orange-25 transition-colors">
+                                        <td className="px-6 py-5 whitespace-nowrap text-sm font-semibold text-gray-900">
+                                            👥 Tenants
                                         </td>
                                         {tiers.filter(t => t.slug !== 'trial').map((tier) => (
-                                            <td key={tier.id} className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                                            <td key={tier.id} className={`px-6 py-5 whitespace-nowrap text-sm font-medium text-center ${
+                                                tier.is_popular ? 'text-orange-700 bg-orange-50' : 'text-gray-600'
+                                            }`}>
                                                 {formatLimit(tier.max_tenants, 'tenant')}
                                             </td>
                                         ))}
