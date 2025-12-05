@@ -27,6 +27,11 @@ class User extends Authenticatable
         'password',
         'google_id',
         'avatar',
+        'first_name',
+        'last_name',
+        'phone',
+        'profile_completed_at',
+        'has_google_linked',
     ];
 
     /**
@@ -52,6 +57,8 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'two_factor_confirmed_at' => 'datetime',
+            'profile_completed_at' => 'datetime',
+            'has_google_linked' => 'boolean',
         ];
     }
 
@@ -78,6 +85,11 @@ class User extends Authenticatable
     public function currentSubscription(): ?UserSubscription
     {
         return $this->activeSubscription;
+    }
+
+    public function properties(): HasMany
+    {
+        return $this->hasMany(Property::class);
     }
 
     public function hasActiveSubscription(): bool
@@ -157,5 +169,28 @@ class User extends Authenticatable
     public function requiresSubscription(): bool
     {
         return $this->hasRole('landlord') && !$this->hasActiveSubscription();
+    }
+
+    public function hasCompletedProfile(): bool
+    {
+        return !is_null($this->profile_completed_at) && 
+               !empty($this->first_name) && 
+               !empty($this->last_name) && 
+               $this->properties()->count() > 0;
+    }
+
+    public function getFullNameAttribute(): string
+    {
+        return trim(($this->first_name ?? '') . ' ' . ($this->last_name ?? ''));
+    }
+
+    public function isGoogleUser(): bool
+    {
+        return !empty($this->google_id);
+    }
+
+    public function needsPasswordSetup(): bool
+    {
+        return $this->isGoogleUser() && empty($this->password);
     }
 }
