@@ -37,6 +37,14 @@ interface PasswordStrength {
     score: number;
     level: 'weak' | 'medium' | 'strong';
     feedback: string[];
+    criteria: {
+        length: boolean;
+        uppercase: boolean;
+        lowercase: boolean;
+        number: boolean;
+        special: boolean;
+    };
+    percentage: number;
 }
 
 interface ProfileSetupProps {
@@ -50,10 +58,66 @@ export default function ProfileSetup({ user, property_types }: ProfileSetupProps
     const [passwordStrength, setPasswordStrength] = useState<PasswordStrength>({
         score: 0,
         level: 'weak',
-        feedback: []
+        feedback: [],
+        criteria: {
+            length: false,
+            uppercase: false,
+            lowercase: false,
+            number: false,
+            special: false
+        },
+        percentage: 0
     });
     const [avatarPreview, setAvatarPreview] = useState<string | null>(user.avatar || null);
     const [avatarUploading, setAvatarUploading] = useState(false);
+
+    // Client-side password strength calculation
+    const calculatePasswordStrength = (password: string): PasswordStrength => {
+        const criteria = {
+            length: password.length >= 8,
+            uppercase: /[A-Z]/.test(password),
+            lowercase: /[a-z]/.test(password),
+            number: /\d/.test(password),
+            special: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)
+        };
+
+        const metCriteria = Object.values(criteria).filter(Boolean).length;
+        const percentage = (metCriteria / 5) * 100;
+        
+        let level: 'weak' | 'medium' | 'strong';
+        let score: number;
+        const feedback: string[] = [];
+
+        if (metCriteria <= 2) {
+            level = 'weak';
+            score = 1;
+        } else if (metCriteria <= 4) {
+            level = 'medium';
+            score = 3;
+        } else {
+            level = 'strong';
+            score = 4;
+        }
+
+        // Generate feedback
+        if (!criteria.length) {
+            feedback.push('Password must be at least 8 characters long');
+        }
+        if (!criteria.uppercase) {
+            feedback.push('Add at least one uppercase letter (A-Z)');
+        }
+        if (!criteria.lowercase) {
+            feedback.push('Add at least one lowercase letter (a-z)');
+        }
+        if (!criteria.number) {
+            feedback.push('Add at least one number (0-9)');
+        }
+        if (!criteria.special) {
+            feedback.push('Add at least one special character (!@#$%^&*)');
+        }
+
+        return { score, level, feedback, criteria, percentage };
+    };
 
     const { data, setData, post, processing, errors } = useForm({
         // User fields
@@ -64,30 +128,25 @@ export default function ProfileSetup({ user, property_types }: ProfileSetupProps
         avatar: '',
     });
 
-    // Check password strength when password changes
+    // Check password strength when password changes (real-time client-side)
     useEffect(() => {
         if (data.password && (!user.has_password || user.is_google_user)) {
-            const checkStrength = async () => {
-                try {
-                    const response = await fetch('/profile/password-strength', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
-                        },
-                        body: JSON.stringify({ password: data.password }),
-                    });
-                    
-                    if (response.ok) {
-                        const strength = await response.json();
-                        setPasswordStrength(strength);
-                    }
-                } catch (error) {
-                    console.error('Error checking password strength:', error);
-                }
-            };
-
-            checkStrength();
+            const strength = calculatePasswordStrength(data.password);
+            setPasswordStrength(strength);
+        } else if (!data.password) {
+            setPasswordStrength({
+                score: 0,
+                level: 'weak',
+                feedback: [],
+                criteria: {
+                    length: false,
+                    uppercase: false,
+                    lowercase: false,
+                    number: false,
+                    special: false
+                },
+                percentage: 0
+            });
         }
     }, [data.password, user.has_password, user.is_google_user]);
 
@@ -415,43 +474,120 @@ export default function ProfileSetup({ user, property_types }: ProfileSetupProps
                                                             </button>
                                                         </div>
                                                         
-                                                        {/* Password strength indicator */}
-                                                        {data.password && (
-                                                            <div className="mt-3">
-                                                                <div className="flex items-center space-x-3 mb-2">
-                                                                    <div className="flex-1 bg-gray-200 rounded-full h-3 overflow-hidden">
-                                                                        <div 
-                                                                            className={`h-3 rounded-full transition-all duration-500 ${getStrengthColor(passwordStrength.level)} shadow-sm`}
-                                                                            style={{ width: `${(passwordStrength.score / 4) * 100}%` }}
-                                                                        />
-                                                                    </div>
-                                                                    <div className={`flex items-center space-x-1 text-sm font-semibold px-2 py-1 rounded-full ${
-                                                                        passwordStrength.level === 'weak' ? 'bg-red-100 text-red-700' : 
-                                                                        passwordStrength.level === 'medium' ? 'bg-yellow-100 text-yellow-700' : 
-                                                                        'bg-green-100 text-green-700'
-                                                                    }`}>
-                                                                        {passwordStrength.level === 'weak' && <span>🔴</span>}
-                                                                        {passwordStrength.level === 'medium' && <span>🟡</span>}
-                                                                        {passwordStrength.level === 'strong' && <span>🟢</span>}
-                                                                        <span>{getStrengthText(passwordStrength.level)}</span>
-                                                                    </div>
-                                                                </div>
-                                                                {passwordStrength.feedback.length > 0 && (
-                                                                    <div className="bg-orange-50 border border-orange-200 rounded-lg p-3">
-                                                                        <ul className="text-sm text-orange-800 space-y-1">
-                                                                            {passwordStrength.feedback.map((tip, index) => (
-                                                                                <li key={index} className="flex items-center gap-2">
-                                                                                    <AlertCircle className="h-3 w-3 text-orange-600 flex-shrink-0" />
-                                                                                    {tip}
-                                                                                </li>
-                                                                            ))}
-                                                                        </ul>
-                                                                    </div>
+                                        {/* Password strength indicator */}
+                                        {data.password && (
+                                            <div className="mt-3">
+                                                {/* Overall strength bar */}
+                                                <div className="flex items-center space-x-3 mb-3">
+                                                    <div className="flex-1 bg-gray-200 rounded-full h-2 overflow-hidden">
+                                                        <div 
+                                                            className={`h-2 rounded-full transition-all duration-300 ${getStrengthColor(passwordStrength.level)} shadow-sm`}
+                                                            style={{ width: `${passwordStrength.percentage}%` }}
+                                                        />
+                                                    </div>
+                                                    <div className={`flex items-center space-x-1 text-xs font-bold px-2 py-1 rounded-full ${
+                                                        passwordStrength.level === 'weak' ? 'bg-red-100 text-red-700' : 
+                                                        passwordStrength.level === 'medium' ? 'bg-yellow-100 text-yellow-700' : 
+                                                        'bg-green-100 text-green-700'
+                                                    }`}>
+                                                        {passwordStrength.level === 'weak' && <span>🔴</span>}
+                                                        {passwordStrength.level === 'medium' && <span>🟡</span>}
+                                                        {passwordStrength.level === 'strong' && <span>🟢</span>}
+                                                        <span>{getStrengthText(passwordStrength.level)}</span>
+                                                    </div>
+                                                </div>
+
+                                                {/* Criteria checklist */}
+                                                <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
+                                                    <h4 className="text-sm font-medium text-gray-700 mb-2">Password Requirements:</h4>
+                                                    <div className="grid grid-cols-1 gap-1.5">
+                                                        <div className={`flex items-center gap-2 text-sm ${
+                                                            passwordStrength.criteria.length ? 'text-green-700' : 'text-gray-500'
+                                                        }`}>
+                                                            <div className={`w-4 h-4 rounded-full flex items-center justify-center ${
+                                                                passwordStrength.criteria.length ? 'bg-green-100' : 'bg-gray-100'
+                                                            }`}>
+                                                                {passwordStrength.criteria.length ? (
+                                                                    <Check className="h-3 w-3 text-green-600" />
+                                                                ) : (
+                                                                    <div className="w-2 h-2 bg-gray-400 rounded-full" />
                                                                 )}
                                                             </div>
-                                                        )}
+                                                            <span>At least 8 characters</span>
+                                                        </div>
                                                         
-                                                        {errors.password && (
+                                                        <div className={`flex items-center gap-2 text-sm ${
+                                                            passwordStrength.criteria.uppercase ? 'text-green-700' : 'text-gray-500'
+                                                        }`}>
+                                                            <div className={`w-4 h-4 rounded-full flex items-center justify-center ${
+                                                                passwordStrength.criteria.uppercase ? 'bg-green-100' : 'bg-gray-100'
+                                                            }`}>
+                                                                {passwordStrength.criteria.uppercase ? (
+                                                                    <Check className="h-3 w-3 text-green-600" />
+                                                                ) : (
+                                                                    <div className="w-2 h-2 bg-gray-400 rounded-full" />
+                                                                )}
+                                                            </div>
+                                                            <span>One uppercase letter (A-Z)</span>
+                                                        </div>
+                                                        
+                                                        <div className={`flex items-center gap-2 text-sm ${
+                                                            passwordStrength.criteria.lowercase ? 'text-green-700' : 'text-gray-500'
+                                                        }`}>
+                                                            <div className={`w-4 h-4 rounded-full flex items-center justify-center ${
+                                                                passwordStrength.criteria.lowercase ? 'bg-green-100' : 'bg-gray-100'
+                                                            }`}>
+                                                                {passwordStrength.criteria.lowercase ? (
+                                                                    <Check className="h-3 w-3 text-green-600" />
+                                                                ) : (
+                                                                    <div className="w-2 h-2 bg-gray-400 rounded-full" />
+                                                                )}
+                                                            </div>
+                                                            <span>One lowercase letter (a-z)</span>
+                                                        </div>
+                                                        
+                                                        <div className={`flex items-center gap-2 text-sm ${
+                                                            passwordStrength.criteria.number ? 'text-green-700' : 'text-gray-500'
+                                                        }`}>
+                                                            <div className={`w-4 h-4 rounded-full flex items-center justify-center ${
+                                                                passwordStrength.criteria.number ? 'bg-green-100' : 'bg-gray-100'
+                                                            }`}>
+                                                                {passwordStrength.criteria.number ? (
+                                                                    <Check className="h-3 w-3 text-green-600" />
+                                                                ) : (
+                                                                    <div className="w-2 h-2 bg-gray-400 rounded-full" />
+                                                                )}
+                                                            </div>
+                                                            <span>One number (0-9)</span>
+                                                        </div>
+                                                        
+                                                        <div className={`flex items-center gap-2 text-sm ${
+                                                            passwordStrength.criteria.special ? 'text-green-700' : 'text-gray-500'
+                                                        }`}>
+                                                            <div className={`w-4 h-4 rounded-full flex items-center justify-center ${
+                                                                passwordStrength.criteria.special ? 'bg-green-100' : 'bg-gray-100'
+                                                            }`}>
+                                                                {passwordStrength.criteria.special ? (
+                                                                    <Check className="h-3 w-3 text-green-600" />
+                                                                ) : (
+                                                                    <div className="w-2 h-2 bg-gray-400 rounded-full" />
+                                                                )}
+                                                            </div>
+                                                            <span>One special character (!@#$%^&*)</span>
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    {passwordStrength.level === 'strong' && (
+                                                        <div className="mt-2 p-2 bg-green-50 border border-green-200 rounded-md">
+                                                            <div className="flex items-center gap-2 text-sm text-green-800">
+                                                                <Shield className="h-4 w-4" />
+                                                                <span className="font-medium">Excellent! Your password is strong and secure.</span>
+                                                            </div>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        )}                                                        {errors.password && (
                                                             <p className="text-red-600 text-sm mt-1">{errors.password}</p>
                                                         )}
                                                     </div>
