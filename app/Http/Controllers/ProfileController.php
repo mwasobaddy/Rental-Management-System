@@ -108,8 +108,18 @@ class ProfileController extends Controller
             'other' => 'Other',
         ];
         
+        $user->load('activeSubscription.subscriptionTier');
+        
+        // Transform user data to match frontend expectations
+        $userData = $user->toArray();
+        if ($user->activeSubscription && $user->activeSubscription->subscriptionTier) {
+            $userData['subscription'] = [
+                'tier' => $user->activeSubscription->subscriptionTier->toArray()
+            ];
+        }
+        
         return inertia('profile/property-setup', [
-            'user' => $user->load('subscription.tier'),
+            'user' => $userData,
             'property_types' => $property_types,
         ]);
     }
@@ -122,7 +132,7 @@ class ProfileController extends Controller
         $user = auth()->user();
         
         // Validate based on subscription tier limits
-        $maxUnits = $user->subscription?->tier->max_units;
+        $maxUnits = $user->activeSubscription?->subscriptionTier->max_units;
         
         $request->validate([
             'property_name' => 'required|string|max:255',

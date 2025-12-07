@@ -83,6 +83,11 @@ class User extends Authenticatable
             ->latest();
     }
 
+    public function subscription(): HasOne
+    {
+        return $this->activeSubscription();
+    }
+
     public function currentSubscription(): ?UserSubscription
     {
         return $this->activeSubscription;
