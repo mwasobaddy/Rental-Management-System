@@ -90,8 +90,8 @@ class UserSubscription extends Model
         if ($this->subscriptionTier->hasUnlimitedProperties()) {
             return null; // Unlimited
         }
-
-        $usedProperties = $this->getUsageStat('properties_count', 0);
+        // Fallback to using the actual properties count if usage_stats hasn't been updated
+        $usedProperties = $this->getUsageStat('properties_count', $this->user?->properties()->count() ?? 0);
         return max(0, $this->subscriptionTier->max_properties - $usedProperties);
     }
 
@@ -100,8 +100,8 @@ class UserSubscription extends Model
         if ($this->subscriptionTier->hasUnlimitedUnits()) {
             return null; // Unlimited
         }
-
-        $usedUnits = $this->getUsageStat('units_count', 0);
+        // Fallback to using the aggregated units count across user's properties if usage_stats hasn't been updated
+        $usedUnits = $this->getUsageStat('units_count', $this->user?->properties()->sum('total_units') ?? 0);
         return max(0, $this->subscriptionTier->max_units - $usedUnits);
     }
 

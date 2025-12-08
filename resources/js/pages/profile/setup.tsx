@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { AlertCircle, Check, Eye, EyeOff, Link, Shield, User, Home, CircleCheckBig } from 'lucide-react';
+import { AlertCircle, Check, Eye, EyeOff, Link, Shield, User, Home, CircleCheckBig, Circle } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Progress } from '@/components/ui/progress';
 import {
@@ -473,110 +473,7 @@ export default function ProfileSetup({ user, property_types }: ProfileSetupProps
                                                                 {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                                                             </button>
                                                         </div>
-
-                                                        {/* Password strength indicator */}
-                                                        {data.password && (
-                                                            <div className="mt-3">
-                                                                {/* Overall strength bar */}
-                                                                <div className="flex items-center space-x-3 mb-3">
-                                                                    <div className="flex-1 bg-gray-200 rounded-full h-2 overflow-hidden">
-                                                                        <div
-                                                                            className={`h-2 rounded-full transition-all duration-300 ${getStrengthColor(passwordStrength.level)} shadow-sm`}
-                                                                            style={{ width: `${passwordStrength.percentage}%` }}
-                                                                        />
-                                                                    </div>
-                                                                    <div className={`flex items-center space-x-1 text-xs font-bold px-2 py-1 rounded-full ${passwordStrength.level === 'weak' ? 'bg-red-100 text-red-700' :
-                                                                            passwordStrength.level === 'medium' ? 'bg-yellow-100 text-yellow-700' :
-                                                                                'bg-green-100 text-green-700'
-                                                                        }`}>
-                                                                        {passwordStrength.level === 'weak' && <span>🔴</span>}
-                                                                        {passwordStrength.level === 'medium' && <span>🟡</span>}
-                                                                        {passwordStrength.level === 'strong' && <span>🟢</span>}
-                                                                        <span>{getStrengthText(passwordStrength.level)}</span>
-                                                                    </div>
-                                                                </div>
-
-                                                                {/* Criteria checklist */}
-                                                                <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
-                                                                    <h4 className="text-sm font-medium text-gray-700 mb-2">Password Requirements:</h4>
-                                                                    <div className="grid grid-cols-1 gap-1.5">
-                                                                        <div className={`flex items-center gap-2 text-sm ${passwordStrength.criteria.length ? 'text-green-700' : 'text-gray-500'
-                                                                            }`}>
-                                                                            <div className={`w-4 h-4 rounded-full flex items-center justify-center ${passwordStrength.criteria.length ? 'bg-green-100' : 'bg-gray-100'
-                                                                                }`}>
-                                                                                {passwordStrength.criteria.length ? (
-                                                                                    <Check className="h-3 w-3 text-green-600" />
-                                                                                ) : (
-                                                                                    <div className="w-2 h-2 bg-gray-400 rounded-full" />
-                                                                                )}
-                                                                            </div>
-                                                                            <span>At least 8 characters</span>
-                                                                        </div>
-
-                                                                        <div className={`flex items-center gap-2 text-sm ${passwordStrength.criteria.uppercase ? 'text-green-700' : 'text-gray-500'
-                                                                            }`}>
-                                                                            <div className={`w-4 h-4 rounded-full flex items-center justify-center ${passwordStrength.criteria.uppercase ? 'bg-green-100' : 'bg-gray-100'
-                                                                                }`}>
-                                                                                {passwordStrength.criteria.uppercase ? (
-                                                                                    <Check className="h-3 w-3 text-green-600" />
-                                                                                ) : (
-                                                                                    <div className="w-2 h-2 bg-gray-400 rounded-full" />
-                                                                                )}
-                                                                            </div>
-                                                                            <span>One uppercase letter (A-Z)</span>
-                                                                        </div>
-
-                                                                        <div className={`flex items-center gap-2 text-sm ${passwordStrength.criteria.lowercase ? 'text-green-700' : 'text-gray-500'
-                                                                            }`}>
-                                                                            <div className={`w-4 h-4 rounded-full flex items-center justify-center ${passwordStrength.criteria.lowercase ? 'bg-green-100' : 'bg-gray-100'
-                                                                                }`}>
-                                                                                {passwordStrength.criteria.lowercase ? (
-                                                                                    <Check className="h-3 w-3 text-green-600" />
-                                                                                ) : (
-                                                                                    <div className="w-2 h-2 bg-gray-400 rounded-full" />
-                                                                                )}
-                                                                            </div>
-                                                                            <span>One lowercase letter (a-z)</span>
-                                                                        </div>
-
-                                                                        <div className={`flex items-center gap-2 text-sm ${passwordStrength.criteria.number ? 'text-green-700' : 'text-gray-500'
-                                                                            }`}>
-                                                                            <div className={`w-4 h-4 rounded-full flex items-center justify-center ${passwordStrength.criteria.number ? 'bg-green-100' : 'bg-gray-100'
-                                                                                }`}>
-                                                                                {passwordStrength.criteria.number ? (
-                                                                                    <Check className="h-3 w-3 text-green-600" />
-                                                                                ) : (
-                                                                                    <div className="w-2 h-2 bg-gray-400 rounded-full" />
-                                                                                )}
-                                                                            </div>
-                                                                            <span>One number (0-9)</span>
-                                                                        </div>
-
-                                                                        <div className={`flex items-center gap-2 text-sm ${passwordStrength.criteria.special ? 'text-green-700' : 'text-gray-500'
-                                                                            }`}>
-                                                                            <div className={`w-4 h-4 rounded-full flex items-center justify-center ${passwordStrength.criteria.special ? 'bg-green-100' : 'bg-gray-100'
-                                                                                }`}>
-                                                                                {passwordStrength.criteria.special ? (
-                                                                                    <Check className="h-3 w-3 text-green-600" />
-                                                                                ) : (
-                                                                                    <div className="w-2 h-2 bg-gray-400 rounded-full" />
-                                                                                )}
-                                                                            </div>
-                                                                            <span>One special character (!@#$%^&*)</span>
-                                                                        </div>
-                                                                    </div>
-
-                                                                    {passwordStrength.level === 'strong' && (
-                                                                        <div className="mt-2 p-2 bg-green-50 border border-green-200 rounded-md">
-                                                                            <div className="flex items-center gap-2 text-sm text-green-800">
-                                                                                <Shield className="h-4 w-4" />
-                                                                                <span className="font-medium">Excellent! Your password is strong and secure.</span>
-                                                                            </div>
-                                                                        </div>
-                                                                    )}
-                                                                </div>
-                                                            </div>
-                                                        )}                                                        {errors.password && (
+                                                        {errors.password && (
                                                             <p className="text-red-600 text-sm mt-1">{errors.password}</p>
                                                         )}
                                                     </div>
@@ -603,6 +500,110 @@ export default function ProfileSetup({ user, property_types }: ProfileSetupProps
                                                             <p className="text-red-600 text-sm mt-1">{errors.password_confirmation}</p>
                                                         )}
                                                     </div>
+                                                    
+                                                    {/* Password strength indicator */}
+                                                    {data.password && (
+                                                        <div className="mt-3 col-span-1 xl:col-span-2">
+                                                            {/* Overall strength bar */}
+                                                            <div className="flex items-center space-x-3 mb-3">
+                                                                <div className="flex-1 bg-gray-200 rounded-full h-2 overflow-hidden">
+                                                                    <div
+                                                                        className={`h-2 rounded-full transition-all duration-300 ${getStrengthColor(passwordStrength.level)} shadow-sm`}
+                                                                        style={{ width: `${passwordStrength.percentage}%` }}
+                                                                    />
+                                                                </div>
+                                                                <div className={`flex items-center space-x-1 text-xs font-bold px-2 py-1 rounded-full ${passwordStrength.level === 'weak' ? 'bg-red-100 text-red-700' :
+                                                                        passwordStrength.level === 'medium' ? 'bg-yellow-100 text-yellow-700' :
+                                                                            'bg-green-100 text-green-700'
+                                                                    }`}>
+                                                                    {passwordStrength.level === 'weak' && <span className="bg-red-700 rounded-full h-3 w-3"></span>}
+                                                                    {passwordStrength.level === 'medium' && <span className="bg-yellow-700 rounded-full h-3 w-3"></span>}
+                                                                    {passwordStrength.level === 'strong' && <span className="bg-green-700 rounded-full h-3 w-3"></span>}
+                                                                    <span>{getStrengthText(passwordStrength.level)}</span>
+                                                                </div>
+                                                            </div>
+
+                                                            {/* Criteria checklist */}
+                                                            <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
+                                                                <h4 className="text-sm font-medium text-gray-700 mb-2">Password Requirements:</h4>
+                                                                <div className="grid grid-cols-1 gap-1.5">
+                                                                    <div className={`flex items-center gap-2 text-sm ${passwordStrength.criteria.length ? 'text-green-700' : 'text-gray-500'
+                                                                        }`}>
+                                                                        <div className={`w-4 h-4 rounded-full flex items-center justify-center ${passwordStrength.criteria.length ? 'bg-green-100' : 'bg-gray-100'
+                                                                            }`}>
+                                                                            {passwordStrength.criteria.length ? (
+                                                                                <Check className="h-3 w-3 text-green-600" />
+                                                                            ) : (
+                                                                                <div className="w-2 h-2 bg-gray-400 rounded-full" />
+                                                                            )}
+                                                                        </div>
+                                                                        <span>At least 8 characters</span>
+                                                                    </div>
+
+                                                                    <div className={`flex items-center gap-2 text-sm ${passwordStrength.criteria.uppercase ? 'text-green-700' : 'text-gray-500'
+                                                                        }`}>
+                                                                        <div className={`w-4 h-4 rounded-full flex items-center justify-center ${passwordStrength.criteria.uppercase ? 'bg-green-100' : 'bg-gray-100'
+                                                                            }`}>
+                                                                            {passwordStrength.criteria.uppercase ? (
+                                                                                <Check className="h-3 w-3 text-green-600" />
+                                                                            ) : (
+                                                                                <div className="w-2 h-2 bg-gray-400 rounded-full" />
+                                                                            )}
+                                                                        </div>
+                                                                        <span>One uppercase letter (A-Z)</span>
+                                                                    </div>
+
+                                                                    <div className={`flex items-center gap-2 text-sm ${passwordStrength.criteria.lowercase ? 'text-green-700' : 'text-gray-500'
+                                                                        }`}>
+                                                                        <div className={`w-4 h-4 rounded-full flex items-center justify-center ${passwordStrength.criteria.lowercase ? 'bg-green-100' : 'bg-gray-100'
+                                                                            }`}>
+                                                                            {passwordStrength.criteria.lowercase ? (
+                                                                                <Check className="h-3 w-3 text-green-600" />
+                                                                            ) : (
+                                                                                <div className="w-2 h-2 bg-gray-400 rounded-full" />
+                                                                            )}
+                                                                        </div>
+                                                                        <span>One lowercase letter (a-z)</span>
+                                                                    </div>
+
+                                                                    <div className={`flex items-center gap-2 text-sm ${passwordStrength.criteria.number ? 'text-green-700' : 'text-gray-500'
+                                                                        }`}>
+                                                                        <div className={`w-4 h-4 rounded-full flex items-center justify-center ${passwordStrength.criteria.number ? 'bg-green-100' : 'bg-gray-100'
+                                                                            }`}>
+                                                                            {passwordStrength.criteria.number ? (
+                                                                                <Check className="h-3 w-3 text-green-600" />
+                                                                            ) : (
+                                                                                <div className="w-2 h-2 bg-gray-400 rounded-full" />
+                                                                            )}
+                                                                        </div>
+                                                                        <span>One number (0-9)</span>
+                                                                    </div>
+
+                                                                    <div className={`flex items-center gap-2 text-sm ${passwordStrength.criteria.special ? 'text-green-700' : 'text-gray-500'
+                                                                        }`}>
+                                                                        <div className={`w-4 h-4 rounded-full flex items-center justify-center ${passwordStrength.criteria.special ? 'bg-green-100' : 'bg-gray-100'
+                                                                            }`}>
+                                                                            {passwordStrength.criteria.special ? (
+                                                                                <Check className="h-3 w-3 text-green-600" />
+                                                                            ) : (
+                                                                                <div className="w-2 h-2 bg-gray-400 rounded-full" />
+                                                                            )}
+                                                                        </div>
+                                                                        <span>One special character (!@#$%^&*)</span>
+                                                                    </div>
+                                                                </div>
+
+                                                                {passwordStrength.level === 'strong' && (
+                                                                    <div className="mt-2 p-2 bg-green-50 border border-green-200 rounded-md">
+                                                                        <div className="flex items-center gap-2 text-sm text-green-800">
+                                                                            <Shield className="h-4 w-4" />
+                                                                            <span className="font-medium">Excellent! Your password is strong and secure.</span>
+                                                                        </div>
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                    )}
                                                 </div>
                                             </div>
                                         </>
@@ -647,7 +648,7 @@ export default function ProfileSetup({ user, property_types }: ProfileSetupProps
                                         type="submit"
                                         size="lg"
                                         disabled={processing}
-                                        className="bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 text-white text-xl font-bold px-12 py-4 shadow-xl transform hover:scale-105 transition-all duration-200"
+                                        className="bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 text-white font-bold px-12 py-4 shadow-xl transform hover:scale-105 transition-all duration-200"
                                     >
                                         {processing ? (
                                             <div className="flex items-center space-x-2">

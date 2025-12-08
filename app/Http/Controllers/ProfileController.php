@@ -109,6 +109,10 @@ class ProfileController extends Controller
         ];
         
         $user->load('activeSubscription.subscriptionTier');
+        // Compute current units across the user's properties and remaining units based on subscription
+        $currentUnits = $user->properties()->sum('total_units');
+        $maxUnits = $user->activeSubscription?->subscriptionTier->max_units;
+        $remainingUnits = is_null($maxUnits) ? null : max(0, $maxUnits - $currentUnits);
         
         // Transform user data to match frontend expectations
         $userData = $user->toArray();
@@ -116,6 +120,10 @@ class ProfileController extends Controller
             $userData['subscription'] = [
                 'tier' => $user->activeSubscription->subscriptionTier->toArray()
             ];
+            // Add some helpful usage metadata for the frontend
+            $userData['subscription']['remaining_units'] = $remainingUnits;
+            $userData['subscription']['current_units'] = $currentUnits;
+            $userData['subscription']['remaining_properties'] = $user->activeSubscription->getRemainingProperties();
         }
         
         return inertia('profile/property-setup', [
@@ -133,6 +141,9 @@ class ProfileController extends Controller
         
         // Validate based on subscription tier limits
         $maxUnits = $user->activeSubscription?->subscriptionTier->max_units;
+        $maxProperties = $user->activeSubscription?->subscriptionTier->max_properties;
+        $currentUnits = $user->properties()->sum('total_units');
+        $currentPropertiesCount = $user->properties()->count();
         
         $request->validate([
             'property_name' => 'required|string|max:255',
@@ -142,7 +153,7 @@ class ProfileController extends Controller
             'property_state' => 'required|string|max:255',
             'property_postal_code' => 'required|string|max:20',
             'property_country' => 'string|max:255',
-            'total_units' => ['required', 'integer', 'min:1', $maxUnits ? "max:$maxUnits" : 'max:1000'],
+            'total_units' => ['required', 'integer', 'min:1', 'max:1000'],
             'purchase_price' => 'nullable|numeric|min:0',
             'monthly_rent' => 'nullable|numeric|min:0',
             'purchase_date' => 'nullable|date|before_or_equal:today',
@@ -150,7 +161,18 @@ class ProfileController extends Controller
             'amenities' => 'nullable|array',
             'amenities.*' => 'string|max:255',
         ]);
-        
+        // Enforce per-subscription remaining property count
+        if ($maxProperties && $currentPropertiesCount >= $maxProperties) {
+            return redirect()->back()->withErrors(['property' => "You have reached the limit of {$maxProperties} properties for your plan."])->withInput();
+        }
+
+        // Enforce remaining units across the subscription (not per-property max)
+        if ($maxUnits !== null) {
+            $allowedUnitsRemaining = max(0, $maxUnits - $currentUnits);
+            if ($request->total_units > $allowedUnitsRemaining) {
+                return redirect()->back()->withErrors(['total_units' => "Not enough units remaining on your plan. You can add up to {$allowedUnitsRemaining} more unit(s)."])->withInput();
+            }
+        }
         // Create the property
         $property = Property::create([
             'user_id' => $user->id,

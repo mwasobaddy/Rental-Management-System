@@ -14,10 +14,19 @@ return new class extends Migration
         Schema::create('users', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            // Profile fields (added to base users table)
+            $table->string('first_name')->nullable()->after('name');
+            $table->string('last_name')->nullable()->after('first_name');
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
+            $table->timestamp('profile_completed_at')->nullable()->after('email_verified_at');
             $table->string('password');
             $table->rememberToken();
+            $table->string('google_id')->nullable()->after('remember_token');
+            $table->string('avatar')->nullable()->after('google_id');
+            $table->boolean('has_google_linked')->default(false)->after('avatar');
+            // Track whether property setup has been completed
+            $table->timestamp('property_setup_completed_at')->nullable()->after('profile_completed_at');
             $table->timestamps();
         });
 
