@@ -5,7 +5,7 @@ import AppLayout from '@/layouts/app-layout';
 import { BreadcrumbItem } from '@/types';
 
 // Simple route helper for subscription routes
-const route = (routeName: string, params?: any) => {
+const route = (routeName: string, params?: string | Record<string, string>) => {
     const routes: Record<string, string> = {
         'subscription.index': '/subscription',
         'subscription.select': '/subscription/select',
@@ -17,7 +17,7 @@ const route = (routeName: string, params?: any) => {
     let url = routes[routeName] || routeName;
     
     // Handle route parameters (simple implementation)
-    if (params && typeof params === 'string') {
+    if (typeof params === 'string') {
         url = url + '/' + params;
     }
     
