@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Head, useForm } from '@inertiajs/react';
 import toast from 'react-hot-toast';
 import { Button } from '@/components/ui/button';
@@ -27,6 +27,9 @@ interface User {
             max_units: number | null;
             max_tenants: number | null;
         };
+        remaining_properties?: number;
+        current_units?: number;
+        remaining_units?: number;
     };
 }
 
