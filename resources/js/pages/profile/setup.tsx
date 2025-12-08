@@ -1,17 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Head, useForm } from '@inertiajs/react';
 import toast from 'react-hot-toast';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+// Removed unused UI imports (Textarea & Select variants were not used in this file)
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { AlertCircle, Check, Eye, EyeOff, Link, Shield, User, Home, CircleCheckBig, Circle } from 'lucide-react';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Progress } from '@/components/ui/progress';
+import { Check, Eye, EyeOff, Link, Shield, User, CircleCheckBig } from 'lucide-react';
+// Alert & Progress UI components are not used here; removed to satisfy eslint
 import {
     Avatar,
     AvatarFallback,
@@ -47,30 +45,41 @@ interface PasswordStrength {
     percentage: number;
 }
 
+// Default object to reuse in memoized calculations and avoid local dependency issues
+const DEFAULT_PASSWORD_STRENGTH: PasswordStrength = {
+    score: 0,
+    level: 'weak',
+    feedback: [],
+    criteria: {
+        length: false,
+        uppercase: false,
+        lowercase: false,
+        number: false,
+        special: false,
+    },
+    percentage: 0,
+};
+
 interface ProfileSetupProps {
     user: User;
-    property_types: Record<string, string>;
 }
 
-export default function ProfileSetup({ user, property_types }: ProfileSetupProps) {
+export default function ProfileSetup({ user }: ProfileSetupProps) {
     const [showPassword, setShowPassword] = useState(false);
     const [showPasswordConfirm, setShowPasswordConfirm] = useState(false);
-    const [passwordStrength, setPasswordStrength] = useState<PasswordStrength>({
-        score: 0,
-        level: 'weak',
-        feedback: [],
-        criteria: {
-            length: false,
-            uppercase: false,
-            lowercase: false,
-            number: false,
-            special: false
-        },
-        percentage: 0
-    });
-    const [avatarPreview, setAvatarPreview] = useState<string | null>(user.avatar || null);
-    const [avatarUploading, setAvatarUploading] = useState(false);
+    // Compute password strength on demand via useMemo to avoid calling setState in effects
+    const defaultPasswordStrength = DEFAULT_PASSWORD_STRENGTH;
 
+    const { data, setData, post, processing, errors } = useForm({
+        // User fields
+        first_name: user.first_name || '',
+        last_name: user.last_name || '',
+        password: '',
+        password_confirmation: '',
+        avatar: '',
+    });
+
+    // Compute password strength on demand (plain computation — inexpensive)
     // Client-side password strength calculation
     const calculatePasswordStrength = (password: string): PasswordStrength => {
         const criteria = {
@@ -78,7 +87,7 @@ export default function ProfileSetup({ user, property_types }: ProfileSetupProps
             uppercase: /[A-Z]/.test(password),
             lowercase: /[a-z]/.test(password),
             number: /\d/.test(password),
-            special: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)
+            special: /[^a-zA-Z0-9]/.test(password)
         };
 
         const metCriteria = Object.values(criteria).filter(Boolean).length;
@@ -119,36 +128,11 @@ export default function ProfileSetup({ user, property_types }: ProfileSetupProps
         return { score, level, feedback, criteria, percentage };
     };
 
-    const { data, setData, post, processing, errors } = useForm({
-        // User fields
-        first_name: user.first_name || '',
-        last_name: user.last_name || '',
-        password: '',
-        password_confirmation: '',
-        avatar: '',
-    });
-
-    // Check password strength when password changes (real-time client-side)
-    useEffect(() => {
-        if (data.password && (!user.has_password || user.is_google_user)) {
-            const strength = calculatePasswordStrength(data.password);
-            setPasswordStrength(strength);
-        } else if (!data.password) {
-            setPasswordStrength({
-                score: 0,
-                level: 'weak',
-                feedback: [],
-                criteria: {
-                    length: false,
-                    uppercase: false,
-                    lowercase: false,
-                    number: false,
-                    special: false
-                },
-                percentage: 0
-            });
-        }
-    }, [data.password, user.has_password, user.is_google_user]);
+    const passwordStrength = (data.password && (!user.has_password || user.is_google_user))
+        ? calculatePasswordStrength(data.password)
+        : defaultPasswordStrength;
+    const [avatarPreview, setAvatarPreview] = useState<string | null>(user.avatar || null);
+    const [avatarUploading, setAvatarUploading] = useState(false);
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
