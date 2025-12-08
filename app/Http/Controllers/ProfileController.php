@@ -194,6 +194,17 @@ class ProfileController extends Controller
         
         // Mark property setup as complete
         $user->update(['property_setup_completed_at' => now()]);
+
+        // Update subscription usage stats (properties_count, units_count)
+        $subscription = $user->activeSubscription;
+        if ($subscription) {
+            $currentProperties = $subscription->getUsageStat('properties_count', $currentPropertiesCount);
+            $currentUnitsStat = $subscription->getUsageStat('units_count', $currentUnits);
+            $subscription->updateUsageStats([
+                'properties_count' => $currentProperties + 1,
+                'units_count' => $currentUnitsStat + $property->total_units,
+            ]);
+        }
         
         return redirect()->route('dashboard')
             ->with('success', 'Property added successfully! Welcome to your rental management dashboard.');

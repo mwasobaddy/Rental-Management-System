@@ -87,11 +87,21 @@ export default function PropertySetup({ user, property_types }: PropertySetupPro
     };
 
     const getMaxProperties = () => {
-        return user.subscription?.tier.max_properties || 'Unlimited';
+        // Prefer remaining properties if available, otherwise fallback to tier limit
+        if (typeof user.subscription?.remaining_properties === 'number') {
+            return user.subscription.remaining_properties;
+        }
+        return user.subscription?.tier.max_properties ?? 'Unlimited';
     };
 
+    // Use per-subscription remaining units if present (computed on backend), otherwise show tier limit
     const getMaxUnits = () => {
-        return user.subscription?.tier.max_units || 'Unlimited';
+        return user.subscription?.remaining_units ?? user.subscription?.tier.max_units ?? 'Unlimited';
+    };
+
+    const getMaxUnitsNumber = () => {
+        const val = user.subscription?.remaining_units ?? user.subscription?.tier.max_units;
+        return typeof val === 'number' ? val : undefined;
     };
 
     const breadcrumbs: BreadcrumbItem[] = [
@@ -152,6 +162,9 @@ export default function PropertySetup({ user, property_types }: PropertySetupPro
                                         <span className="text-sm font-medium text-gray-700">Max Units:</span>
                                         <span className="text-sm font-bold text-orange-600">{getMaxUnits()}</span>
                                     </div>
+                                    {user.subscription?.current_units !== undefined && (
+                                        <p className="text-xs text-gray-500 mt-1">Used: {user.subscription.current_units} • Remaining: {user.subscription.remaining_units ?? 'Unlimited'}</p>
+                                    )}
                                 </div>
                                 <div className="bg-white/60 backdrop-blur-sm rounded-lg p-4 border border-orange-100">
                                     <div className="flex items-center gap-2">
@@ -291,7 +304,7 @@ export default function PropertySetup({ user, property_types }: PropertySetupPro
                                             id="total_units"
                                             type="number"
                                             min="1"
-                                            max={user.subscription?.tier.max_units || undefined}
+                                            max={getMaxUnitsNumber() || undefined}
                                             value={data.total_units}
                                             onChange={(e) => setData('total_units', e.target.value)}
                                             required
@@ -299,7 +312,7 @@ export default function PropertySetup({ user, property_types }: PropertySetupPro
                                         />
                                         {user.subscription?.tier.max_units && (
                                             <p className="text-sm text-gray-500 mt-1">
-                                                Maximum {user.subscription.tier.max_units} units on your {user.subscription.tier.name} plan
+                                                Maximum {getMaxUnits()} units on your {user.subscription.tier.name} plan
                                             </p>
                                         )}
                                         {errors.total_units && (
