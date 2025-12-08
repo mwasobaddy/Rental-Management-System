@@ -1,3 +1,4 @@
+import React, { useState, useEffect } from 'react';
 import { Head, useForm } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -26,14 +27,12 @@ interface SubscriptionTier {
 interface CheckoutProps {
     tier: SubscriptionTier;
     billingCycle: 'monthly' | 'yearly';
-    selectedPrice: number;
     formattedPrice: string;
 }
 
 export default function Checkout({
     tier,
     billingCycle,
-    selectedPrice,
     formattedPrice,
 }: CheckoutProps) {
     const { data, setData, post, processing, errors } = useForm({
@@ -91,6 +90,16 @@ export default function Checkout({
             href: '#',
         },
     ];
+
+    const [nextBillingDate, setNextBillingDate] = useState('');
+    useEffect(() => {
+        const ms = billingCycle === 'yearly' ? 365 * 24 * 60 * 60 * 1000 : 30 * 24 * 60 * 60 * 1000;
+        // Avoid setting state synchronously inside the effect to prevent cascading renders
+        const id = setTimeout(() => {
+            setNextBillingDate(new Date(Date.now() + ms).toLocaleDateString());
+        }, 0);
+        return () => clearTimeout(id);
+    }, [billingCycle]);
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -189,7 +198,7 @@ export default function Checkout({
                                         <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                                             <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
                                         </svg>
-                                        <span>Next billing: {new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toLocaleDateString()}</span>
+                                        <span>Next billing: {nextBillingDate}</span>
                                     </p>
                                 )}
                                 {billingCycle === 'monthly' && (
@@ -197,7 +206,7 @@ export default function Checkout({
                                         <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                                             <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
                                         </svg>
-                                        <span>Next billing: {new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString()}</span>
+                                        <span>Next billing: {nextBillingDate}</span>
                                     </p>
                                 )}
                                 <div className="flex items-center space-x-2 text-sm">
